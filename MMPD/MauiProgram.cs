@@ -4,6 +4,7 @@ using MMPD.Shared.Services;
 using MMPD.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using MMPD.Data.Data;
+using Microsoft.Maui.LifecycleEvents;
 
 namespace MMPD
 {
@@ -18,6 +19,11 @@ namespace MMPD
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
+
+            builder.ConfigureLifecycleEvents(events =>
+            {
+
+            });
 
             // Add device-specific services used by the MMPD.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();

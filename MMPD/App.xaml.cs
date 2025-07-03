@@ -17,16 +17,14 @@
                 Title = "McElroy Directory",
                 Height = appHeight,
                 Width = appWidth,
-                TitleBar = new TitleBar()
+                FlowDirection = FlowDirection.MatchParent,
+                TitleBar = new TitleBar
                 {
-                    BackgroundColor = Colors.Transparent,
-                    ForegroundColor = Colors.Black,
-                    
-                    
-                    
-                   
-                },
-                FlowDirection = FlowDirection.MatchParent
+                    Title = "McElroy Directory",
+                    Background = Colors.Transparent,
+                    ForegroundColor = Colors.Coral
+
+                }
                 
                 
             };

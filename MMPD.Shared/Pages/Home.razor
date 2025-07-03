@@ -23,97 +23,81 @@ else
 { *@
 
 
-@* <TelerikStackLayout Height="100vh" Spacing="10px">
-    <HeaderComponent Class="header-section" />
-    <ListViewComponent Class="content-section" />
-    <FooterComponent Class="footer-section" />
-</TelerikStackLayout> *@
 
+<div class="button-page-container">
+    <TelerikListView Data="@MenuItems" EnableLoaderContainer="true" Class="button-list-container mt-2 py-1">
+        <Template Context="item">
+            <NavLink href="@item.Path" class="button-link ">
+                <div class="menu-item k-elevation-1 hover:shadow-lg">
+                    <span class="k-text-uppercase k-text-white" style="font-size: xx-large; font-weight: bold;">
+                        <TelerikSvgIcon Icon="@item.Icon" Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge" Class="k-pb-2 k-pl-2 k-me-2" />
+                        @item.Label
+                    </span>
+                </div>
+            </NavLink>
+        </Template>
+    </TelerikListView>
+</div>
 
-    <div class=" k-bg-secondary k-w-max k-h-auto">
-        @* <section class=" k-mb--1 k-bg-primary">
-            <HeaderCard Info="CorporateHeadCard" />
-            <div class="k-elevation-2 ">
-                <SearchBar ShowBackButton="false" />
-            </div>
-        </section> *@
-
-        @* <div class="divide divide-none divide-y-2 py-0"></div> *@
-
-        <section class="k-px-5 ">
-
-            <TelerikListView Data="@MenuItems" EnableLoaderContainer="true" Class="  k-border-transparent k-bg-tertiary k-h-screen k-w-screen k-scroll k-overflow-hidden ">
-                <Template Context="item">
-                    <NavLink href="@item.Path" class="link-body-emphasis k-text-no-underline k-shadow  ">
-                        <div class="k-d-flex k-flex-row k-justify-content-start k-align-items-center k-pl-10 menu-item k-bg-gradient k-py-3 k-elevation-1 hover:shadow-lg ">
-                            <span class="k-text-uppercase k-text-white " style="font-size: xx-large; font-weight: bold; ">
-                                <TelerikSvgIcon Icon="@item.Icon" Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge" Class="k-pb-2 k-pl-2 k-me-2" />
-                                @item.Label
-                            </span>
-                        </div>
-                    </NavLink>
-                </Template>
-            </TelerikListView>
-
-
-            @* <div class="ps-2 py-1 pe-4 pt-2 mt-2 border-4 border-transparent overflow-visible">
-                <MainPageMenu />
-
-            </div> *@
-        </section>
-
-
-        @* <section class=" k-z-auto   ">
-            <FooterNav Items="FooterNav" />
-        </section> *@
-
-    </div>
-
-@* } *@
 
 <style>
-    .body {
-    /* overflow: hidden; */
-    }
+    
+    .button-page-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--kendo-color-secondary-emphasis);
+}
 
-    .k-listview {
-    background-color: transparent;
-    }
+.button-list-container {
+    background-color: transparent !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
 
-    .menu-item {
+.button-link {
+    flex: 1;
+    display: flex;
+    text-decoration: none;
+    margin: 2px 3px;
+
+}
+
+.menu-item {
     background-color: #ff6358;
-    margin: 25px 0;
-    border-radius: 0.75rem;
-    }
+    border-radius: 0.25rem;
+    padding: 32px 25px;
+    flex: 1;
+    display: flex;
+    margin: 5px 0;
+    /* align-items: center;
+    justify-content: space-evenly; */
+}
 
-    .menu-item:hover {
+.menu-item:hover {
     transition: transform 0.2s ease-in, opacity 0.2s ease-in;
     transform: translateY(-0.25rem) scale(1.05);
-    /* opacity: 0.9; */
-    transform: translateY(0) scale(0.95);
     background-color: #FA574B;
-    }
+}
 
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    /* .no-scrollbar::-webkit-scrollbar {
-    display: none;
-    } */
-    /* Hide scrollbar for IE, Edge and Firefox */
-    .no-scrollbar {
-    /* -ms-overflow-style: none; */ /* IE and Edge */
-    /* scrollbar-width: none; */ /* Firefox */
-    }
+.k-listview {
+    background-color: transparent;
+}
+
+/* Keep your existing styles for body, no-scrollbar, etc. */
 
 </style>
 
 @code {
     private List<Loctype> Loctypes { get; set; } = new();
 
-    // protected override void OnAfterRender(bool firstRender)
-    // {
-    //     LayoutState.SetHeader(CorporateHeadCard);
-    //     LayoutState.SetFooter(FooterNav);
-    // }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        LayoutState.SetHeader(CorporateHeadCard);
+        LayoutState.SetFooter(FooterNav);
+    }
 
     private HeaderCard.HeadInfoCardModel CorporateHeadCard = new()
         {

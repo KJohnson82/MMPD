@@ -6,16 +6,17 @@
 
 <TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Inverse"
                Height="65px"
+               Class="k-d-flex"
                Position="AppBarPosition.None">
 
     @if (ShowBackButton)
     {
-        <AppBarSection>
+        <AppBarSection Class="k-justify-content-left">
             <BackButton>
                 <span class="k-font-size-lg k-font-bold">BACK</span>
             </BackButton>
         </AppBarSection>
-    }
+    } 
 
     <AppBarSection class="k-d-flex k-align-items-center k-flex-grow">
         <TelerikTextBox Rounded="lg"

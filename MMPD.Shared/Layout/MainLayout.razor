@@ -6,35 +6,58 @@
 
 @inject MMPD.Shared.Services.LayoutState LayoutState
 
+
 <TelerikRootComponent>
-    <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical" Height="100vh" Spacing="2px">
-        <HeaderCard Info="LayoutState.HeaderInfo"  />
-        <div class="no-scrollbar">
-            <main>
-                @Body
-            </main>
-        </div>
-        <FooterNav Items="LayoutState.FooterItems" />
-    </TelerikStackLayout>
+    <div class="main-layout-container">
+        
+        <header class="main-layout-header k-rounded-none k-bg-primary">
+            <HeaderCard Info="LayoutState.HeaderInfo" />
+        </header>
+
+        <main class="main-layout-content no-scrollbar">
+            @Body
+        </main>
+
+        <footer class="main-layout-footer">
+            <FooterNav Items="LayoutState.FooterItems" />
+        </footer>
+
+    </div>
 </TelerikRootComponent>
 
 @code {
     protected override void OnInitialized()
     {
-        LayoutState.OnChange += StateHasChanged;
+        LayoutState.OnChange += OnStateChanged;
     }
+
+    private async void OnStateChanged()
+    {
+        // Safely update the UI when the state changes
+        await InvokeAsync(StateHasChanged);
+    }
+
     public void Dispose()
     {
-        LayoutState.OnChange -= StateHasChanged;
+        // Unsubscribe to prevent memory leaks
+        LayoutState.OnChange -= OnStateChanged;
     }
 }
 
 <style>
-    /* .parent-container {
-        height = 850px;
-        width = 450px;
-        padding = 3px;
+    .main-layout-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
 
-    } */
+    .main-layout-header,
+    .main-layout-footer {
+        flex-shrink: 0; /* Prevents header/footer from shrinking */
+    }
 
+    .main-layout-content {
+        flex-grow: 1; /* Makes the main content fill all available space */
+        overflow-y: auto; /* Adds a scrollbar ONLY to this area if needed */
+    }
 </style>

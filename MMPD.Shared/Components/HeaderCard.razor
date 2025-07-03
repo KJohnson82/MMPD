@@ -3,12 +3,12 @@
 @using MMPD.Data.Models
 @using MMPD.Data.Context
 @using MMPD.Data.Data
-
+@inject NavigationManager NavManager
 
 @if (Info is not null)
 {
-    <TelerikCard  Class="k-w-full k-bg-primary text-primary-content border-opacity-20 k-rounded-lg k-h-auto  k-py-3 k-px-1"
-                 Orientation="CardOrientation.Vertical" >
+    <TelerikCard  Class="k-w-full k-bg-primary text-primary-content border-opacity-20  k-h-auto  k-py-3 k-px-1 k-rounded-t-none k-rounded-b-none"
+                 Orientation="CardOrientation.Vertical"   >
 
         <CardHeader Class="k-text-center k-text-white page-name k-text-uppercase k-font-semibold k-white-space-nowrap k-border-0 ">
             @Info.Title
@@ -58,11 +58,26 @@
             </div>
         </CardBody>
     </TelerikCard>
+    <div class="k-elevation-2 ">
+        <SearchBar ShowBackButton="!IsHomePage" />
+    </div>
 }
 
 @code {
     [Parameter]
     public HeadInfoCardModel? Info { get; set; }
+
+    private bool IsHomePage
+    {
+        get
+        {
+            // Get the current path relative to the app's base URL
+            var relativePath = NavManager.ToBaseRelativePath(NavManager.Uri);
+
+            // Return true if the path is the root ("") OR if it's "home" (case-insensitive)
+            return relativePath == "" || relativePath.Equals("home", StringComparison.OrdinalIgnoreCase);
+        }
+    }
 
     public class HeadInfoCardModel
     {
@@ -70,11 +85,11 @@
     public string Subtitle1 { get; set; } = "";
     public string Subtitle2 { get; set; } = "";
     public string Subtitle3 { get; set; } = "";
-        public string Subtitle4 { get; set; } = "";
-        public string Subtitle5 { get; set; } = "";
-        public string Subtitle6 { get; set; } = "";
-        public string Subtitle7 { get; set; } = "";
-        public string Subtitle8 { get; set; } = "";
+    public string Subtitle4 { get; set; } = "";
+    public string Subtitle5 { get; set; } = "";
+    public string Subtitle6 { get; set; } = "";
+    public string Subtitle7 { get; set; } = "";
+    public string Subtitle8 { get; set; } = "";
     public string Phone { get; set; } = "";
     public string Phone2 { get; set; } = "";
     public string Phone3 { get; set; } = "";
@@ -93,6 +108,9 @@
     public string TManager6 { get; set; } = "";
     public string TManager7 { get; set; } = "";
     public string TManager8 { get; set; } = "";
+    public string ShowBackButton { get; set; } = "true";
+    
+    }
 
     public static HeadInfoCardModel Corporate()
     {
@@ -108,7 +126,8 @@
                 Subtitle2 = "Corp. Email",
                 Email = "info@mcelroymetal.com",
                 Subtitle3 = "IT Help Desk",
-                Phone2 = "(866) 634-5111"
+                Phone2 = "(866) 634-5111",
+                
             };
     }
 
@@ -150,8 +169,6 @@
 
     }
 
-}
-
 <style>
     .page-name {
         font-size: 8vw;
@@ -159,6 +176,10 @@
         text-transform: full-width, uppercase;
         text-shadow: 3px 2px 1px #FDADA8;
         color: var(--k-color-on-primary);
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center
     }
 
 
