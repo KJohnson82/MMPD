@@ -1,0 +1,70 @@
+﻿@page "/Home"
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+@using MMPD.Web.Components.Layout
+
+<PageTitle>Home</PageTitle>
+
+<PageHeader PageTitle="Directory Manager" CardIcon="@CustomIcons.Waving_Hand" />
+
+<div>
+    <TelerikTileLayout Columns="3"
+                       ColumnSpacing="15"
+                       Reorderable="false"
+                       Resizable="false">
+        <TileLayoutItems>
+            <TileLayoutItem>
+                <HeaderTemplate><div class="tile-header">Newest Employees</div></HeaderTemplate>
+                <Content><MMPD.Web.Components.StatData.NewestEmployee /></Content>
+            </TileLayoutItem>
+            <TileLayoutItem>
+                <HeaderTemplate><div class="tile-header">Newest Departments</div></HeaderTemplate>
+                <Content><MMPD.Web.Components.StatData.NewestDepartment /></Content>
+            </TileLayoutItem>
+            <TileLayoutItem>
+                <HeaderTemplate><div class="tile-header">Newest Locations</div></HeaderTemplate>
+                <Content><MMPD.Web.Components.StatData.NewestLocation /></Content>
+            </TileLayoutItem>
+            <TileLayoutItem RowSpan="2">
+                <HeaderTemplate><div class="tile-header">Location Count</div></HeaderTemplate>
+                <Content><MMPD.Web.Components.StatData.LocationsCount /></Content>
+            </TileLayoutItem>
+            <TileLayoutItem ColSpan="2" RowSpan="2">
+                <HeaderTemplate><div class="tile-header">Employee Count Per Department</div></HeaderTemplate>
+                <Content><MMPD.Web.Components.StatData.EmployeeDepartmentCount /></Content>
+            </TileLayoutItem>
+
+        </TileLayoutItems>
+    </TelerikTileLayout>
+</div>
+
+<style>
+    #home-page {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: max-content;
+        text-align: center;
+        font-size: var(--kendo-font-size-xl);
+    }
+
+    @@media (min-height: calc(56px + 50px + 400px)) {
+        /* header + footer + home page container*/
+        #home-page {
+            margin-top: calc(40vh - 28px - 25px - 200px);
+        }
+    }
+
+    .tile-header {
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+</style>
+
+

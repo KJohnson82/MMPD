@@ -1,0 +1,95 @@
+﻿@page "/plant/{locationID:int}/{departmentID:int}"
+@using MMPD.Data.Models
+@using MMPD.Data.Data
+@using MMPD.Data.Context
+@inject IDirectoryService DirectoryService
+@using MMPD.Shared.Components
+@using Telerik.Blazor.Components
+@inject NavigationManager NavigationManager
+@using MMPD.Shared.Layout
+
+<PageTitle>Plant Department</PageTitle>
+
+@if (Department == null)
+{
+    <p>Loading department...</p>
+}
+else
+{
+    <div class="flex flex-col h-screen">
+        <HeaderCard Info="DepartmentHeadCard" />
+
+        <div class="divide divide-none divide-y-2 py-0"></div>
+
+        <section class="flex-grow bg-neutral pb-0 pt-0 overflow-y-scroll no-scrollbar">
+            <TelerikListView Data="@Employees" Class="p-2 rounded" Pageable="false">
+                <Template Context="emp">
+                    <NavLink href="@($"/plant/{locationID}/{departmentID}/{emp.Id}")" class="text-black text-decoration-none hover:bg-neutral-content transition-colors">
+                        <div class="bg-info py-3 px-4 my-2 rounded-3 text-accent tracking-wider">
+                            @emp.FirstName @emp.LastName - @emp.JobTitle @if (emp.IsManager == true)
+                            {
+                                <span class="text-accent ps-1 text-decoration-none">★</span>
+                            }
+                        </div>
+                    </NavLink>
+                </Template>
+            </TelerikListView>
+        </section>
+
+        <div class="divide divide-none divide-y-2 py-0"></div>
+        <section class="box-border pb-3 mt-0">
+            <FooterNav Items="FooterNav" />
+        </section>
+    </div>
+}
+
+@code {
+    [Parameter] public int locationID { get; set; }
+    [Parameter] public int departmentID { get; set; }
+
+    private List<Employee> Employees = new();
+
+    private Department? Department;
+    private Employee? Employee;
+    private Location? Location;
+    private HeaderCard.HeadInfoCardModel DepartmentHeadCard = new();
+
+    private List<FooterNav.FooterItem> FooterNav = new()
+    {
+        new(CustomIcons.Home, "Home", "/"),
+        new(CustomIcons.Corporate, "Corporate", "/corporate"),
+        new(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+        new(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // var data = await DirectoryService.GetDataRootAsync();
+        // if (data?.Loctype.TryGetValue("plant", out var plantGroup) == true)
+        // {
+        //     var location = plantGroup.Locations.FirstOrDefault(l => l.Id == locationID);
+        //     Department = location?.Departments.FirstOrDefault(d => d.Id == departmentID);
+
+            
+        // }
+
+        Location = await DirectoryService.GetLocationWithDepartmentsAsync(locationID);
+        Department = await DirectoryService.GetDepartmentWithEmployeesAsync(departmentID);
+        Employees = await DirectoryService.GetEmployeesByDepartmentAsync(departmentID);
+
+
+        if (Department is not null)
+        {
+            DepartmentHeadCard = new HeaderCard.HeadInfoCardModel
+                {
+                    Title = Department.DeptName!,
+                    Subtitle1 = "Dept. Phone",
+                    Phone = Department.DeptPhone!,
+                    Subtitle2 = "Dept. Email",
+                    Email = Department.DeptEmail!,
+                    Subtitle3 = "Dept. Manager",
+                    Phone2 = Department.DeptManager!
+                };
+        }
+    }
+}

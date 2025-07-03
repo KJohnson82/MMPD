@@ -1,0 +1,154 @@
+﻿
+@using Microsoft.EntityFrameworkCore
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.Blazor.Data
+@using Telerik.Blazor.Extensions
+@using Telerik.Blazor.Services
+@using Telerik.SvgIcons
+@using Telerik.DataSource
+@using Telerik.DataSource.Extensions
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+
+
+@inject AppDbContext dbContext
+
+<TelerikWindow @ref="DeptInfoWindow"
+Modal="true"
+@bind-Visible="@WindowVisible"
+Width="auto"
+Height="auto"
+Resizable="false"
+Draggable="false"
+Class="user-card"
+CloseOnOverlayClick="true">
+
+    <WindowTitle>
+        @if (SelectedDepartment != null)
+        {
+            <h3>@SelectedDepartment.DeptName</h3>
+        }
+    </WindowTitle>
+    <WindowActions>
+        <WindowAction Name="Close" />
+    </WindowActions>
+    <WindowContent>
+        @if (SelectedDepartment != null)
+        {
+            <section>
+                <div>
+                    <div class="card-row">
+                        <label>Department Location:</label>
+                        <span>@SelectedDepartment.DeptLocation?.LocName</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Department Manager:</label>
+                        <span>@SelectedDepartment.DeptManager</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Phone Number:</label>
+                        <span>@SelectedDepartment.DeptPhone</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Department Fax:</label>
+                        <span>@SelectedDepartment.DeptFax</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Department Email:</label>
+                        <span>@SelectedDepartment.DeptEmail</span>
+                    </div>
+                    @* <div class="card-row">
+                        <label>Record Added:</label>
+                        <span>@SelectedDepartment.RecordAdd</span>
+                    </div> *@
+                    <div class="card-row">
+                        <label>Department Added:</label>
+                        <span>@SelectedDepartment.RecordAdd?.ToString("MM/dd/yyy")</span>
+                    </div>
+                </div>
+            </section>
+        }
+
+    </WindowContent>
+
+    <WindowFooter>
+        <TelerikButton OnClick="() => WindowVisible = false" ThemeColor="primary">Close</TelerikButton>
+    </WindowFooter>
+
+</TelerikWindow>
+
+<style>
+    label {
+        padding: 8px 6px 8px 4px;
+        margin-bottom: 15px;
+        /* margin: 5px 20px; */
+        font-weight: 500;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        background-color: var(--kendo-color-primary);
+        color: white;
+    }
+
+    .user-card {
+        /* padding: 5px; */
+        /* border-radius: 16px 16px 16px 16px;
+            border: 0px solid; */
+    }
+
+        .user-card span {
+            font-weight: 600;
+            padding: 3px 5px;
+            font-size: 1em;
+            /* background-color: var(--kendo-color-light); */
+        }
+
+        .user-card .k-window-titlebar-actions {
+            background-color: var(--kendo-color-primary-emphasis);
+        }
+
+    .card-row {
+        padding: 8px 0;
+        /* border: solid; */
+        /* border-top: dashed 1px; */
+        border-bottom: dashed 1px;
+        border-left: 0.25px;
+        border-right: 0.25px;
+        border-color: var(--kendo-color-primary);
+        /* background: inherit; */
+        /* background-color: var(--kendo-color-); */
+    }
+</style>
+
+@code {
+    private bool WindowVisible { get; set; }
+    private Department? SelectedDepartment { get; set; }
+    private List<Location> locations { get; set; } = new List<Location>();
+    private List<Department> departments { get; set; } = new List<Department>();
+    private TelerikWindow? DeptInfoWindow { get; set; }
+
+    [Parameter]
+    public List<Location> Locations { get; set; } = new();
+
+    public void ShowDepartmentInfo(Department department)
+    {
+        SelectedDepartment = department;
+        WindowVisible = true;
+        StateHasChanged();
+        // OpenWindow();
+    }
+
+    private string GetWindowTitle()
+    {
+        return SelectedDepartment != null
+            ? $"{SelectedDepartment.DeptName} - Details"
+            : "Employee Information";
+    }
+
+    private void OpenWindow()
+    {
+        WindowVisible = true;
+    }
+
+}

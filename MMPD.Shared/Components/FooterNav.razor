@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+
+<TelerikAppBar Position="AppBarPosition.Bottom"
+               PositionMode="AppBarPositionMode.Fixed"
+               ThemeColor="@ThemeConstants.AppBar.ThemeColor.Dark"
+               Width="100%"
+               Class="k-d-flex k-align k-justify-content-evenly k-text-white k-h-auto k-w-full">
+    @foreach (var item in Items)
+    {
+        <AppBarSection Class="k-d-flex k-flex-row k-border-none">
+            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           FillMode="@ThemeConstants.Button.FillMode.Outline"
+                           Class="button-setup k-align-items-center"
+                           OnClick="() => NavigateTo(item.Url)">
+                <div class="vstack k-gap-1 k-align-items-center">
+                    <TelerikSvgIcon Icon="@item.Icon" Size="@ThemeConstants.SvgIcon.Size.Large" />
+                    <span class="k-text-uppercase button-text">@item.Label</span>
+                </div>
+            </TelerikButton>
+        </AppBarSection>
+    }
+</TelerikAppBar>
+
+<style>
+    .button-setup {
+        border: none;
+    }
+
+    .button-text {
+        font-size: small;
+    }
+
+    .vstack {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        align-self: stretch;
+    }
+</style>
+
+@code {
+    [Inject]
+    private NavigationManager Navigation { get; set; } = default!;
+
+    [Parameter]
+    public List<FooterItem> Items { get; set; } = new();
+
+    private void NavigateTo(string url)
+    {
+        Navigation.NavigateTo(url);
+    }
+
+    public class FooterItem
+    {
+        public ISvgIcon Icon { get; set; }
+        public string Label { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+
+        // public FooterItem() { }
+
+        public FooterItem(ISvgIcon icon, string label, string url)
+        {
+            Icon = icon;
+            Label = label;
+            Url = url;
+        }
+    }
+}
+

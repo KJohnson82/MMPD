@@ -1,0 +1,167 @@
+﻿@using Telerik.Blazor.Components
+@using Telerik.Blazor
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Data.Data
+
+
+@if (Info is not null)
+{
+    <TelerikCard  Class="k-w-full k-bg-primary text-primary-content border-opacity-20 k-rounded-lg k-h-auto  k-py-3 k-px-1"
+                 Orientation="CardOrientation.Vertical" >
+
+        <CardHeader Class="k-text-center k-text-white page-name k-text-uppercase k-font-semibold k-white-space-nowrap k-border-0 ">
+            @Info.Title
+        </CardHeader>
+
+        <CardBody Class="k-pl-5 k-bg-transparent">
+            <div class="k-grid-auto-rows-auto k-d-grid k-grid-cols-12 k-w-full k-font-size-md k-text-white">
+                @if (!string.IsNullOrWhiteSpace(Info.Address))
+                {
+                    <div class="k-col-span-12 k-text-center">
+                        <span class="k-text-center k-font-size-lg k-py-1">
+                            @Info.Address @Info.City @Info.State @Info.Zip
+                        </span>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.Subtitle1) && !string.IsNullOrWhiteSpace(Info.Phone))
+                {
+                    <div class="k-col-span-12">
+                        <strong>@Info.Subtitle1:</strong> @Info.Phone
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.Subtitle2) && !string.IsNullOrWhiteSpace(Info.Email))
+                {
+                    <div class="k-col-span-12">
+                        <strong>@Info.Subtitle2:</strong> @Info.Email
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.Subtitle3) && !string.IsNullOrWhiteSpace(Info.Phone2))
+                {
+                    <div class="k-col-span-12">
+                        <strong>@Info.Subtitle3:</strong> @Info.Phone2
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.Phone3))
+                {
+                    <div class="k-col-span-12">
+                        <strong>Phone 3:</strong> @Info.Phone3
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.StoreManager) || !string.IsNullOrWhiteSpace(Info.AreaManager))
+                {
+                    <div class="k-col-span-12">
+                        <div><strong>Manager:</strong> @Info.StoreManager</div>
+                        <div><strong>Area:</strong> @Info.AreaManager</div>
+                    </div>
+                }
+            </div>
+        </CardBody>
+    </TelerikCard>
+}
+
+@code {
+    [Parameter]
+    public HeadInfoCardModel? Info { get; set; }
+
+    public class HeadInfoCardModel
+    {
+    public string Title { get; set; } = "";
+    public string Subtitle1 { get; set; } = "";
+    public string Subtitle2 { get; set; } = "";
+    public string Subtitle3 { get; set; } = "";
+        public string Subtitle4 { get; set; } = "";
+        public string Subtitle5 { get; set; } = "";
+        public string Subtitle6 { get; set; } = "";
+        public string Subtitle7 { get; set; } = "";
+        public string Subtitle8 { get; set; } = "";
+    public string Phone { get; set; } = "";
+    public string Phone2 { get; set; } = "";
+    public string Phone3 { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string Address { get; set; } = "";
+    public string City { get; set; } = "";
+    public string State { get; set; } = "";
+    public string Zip { get; set; } = "";
+    public string StoreManager { get; set; } = "";
+    public string AreaManager { get; set; } = "";
+    public string TManager1 { get; set; } = "";
+    public string TManager2 { get; set; } = "";
+    public string TManager3 { get; set; } = "";
+    public string TManager4 { get; set; } = "";
+    public string TManager5 { get; set; } = "";
+    public string TManager6 { get; set; } = "";
+    public string TManager7 { get; set; } = "";
+    public string TManager8 { get; set; } = "";
+
+    public static HeadInfoCardModel Corporate()
+    {
+        return new HeadInfoCardModel
+            {
+                Title = "Employee Directory",
+                Address = "1500 Hamilton Rd",
+                City = "Bossier City",
+                State = "LA",
+                Zip = "71111",
+                Subtitle1 = "Corp. Phone",
+                Phone = "(888) 245-3696",
+                Subtitle2 = "Corp. Email",
+                Email = "info@mcelroymetal.com",
+                Subtitle3 = "IT Help Desk",
+                Phone2 = "(866) 634-5111"
+            };
+    }
+
+    public static HeadInfoCardModel ForDepartment(string title, string? phone, string? email, string? manager)
+    {
+        return new HeadInfoCardModel
+            {
+                Title = title,
+                Subtitle1 = "Dept. Phone",
+                Phone = phone ?? "",
+                Subtitle2 = "Dept. Email",
+                Email = email ?? "",
+                Subtitle3 = "Dept. Manager",
+                Phone2 = manager ?? ""
+            };
+    }
+
+        public static HeadInfoCardModel Plant(string title, string? tmanager1, string? tmanager2, string? tmanager3, string? tmanager4, string? tmanager5, string? tmanager6)
+        {
+            return new HeadInfoCardModel
+                {
+                    Title = title,
+                    Subtitle1 = " ",
+                    TManager1 = tmanager1 ?? "",
+                    Subtitle2 = " ",
+                    TManager2 = tmanager2 ?? "",
+                    Subtitle3 = " ",
+                    TManager3 = tmanager3 ?? "",
+                    Subtitle4 = " ",
+                    TManager4 = tmanager4 ?? "",
+                    Subtitle5 = " ",
+                    TManager5 = tmanager5 ?? "",
+                    Subtitle6 = " ",
+                    TManager6 = tmanager6 ?? "",
+                };
+        }
+
+
+
+    }
+
+}
+
+<style>
+    .page-name {
+        font-size: 8vw;
+        text-align: center;
+        text-transform: full-width, uppercase;
+        text-shadow: 3px 2px 1px #FDADA8;
+        color: var(--k-color-on-primary);
+    }
+
+
+</style>
+
+

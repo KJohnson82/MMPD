@@ -1,0 +1,40 @@
+﻿
+@inherits LayoutComponentBase
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@implements IDisposable
+
+@inject MMPD.Shared.Services.LayoutState LayoutState
+
+<TelerikRootComponent>
+    <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical" Height="100vh" Spacing="2px">
+        <HeaderCard Info="LayoutState.HeaderInfo"  />
+        <div class="no-scrollbar">
+            <main>
+                @Body
+            </main>
+        </div>
+        <FooterNav Items="LayoutState.FooterItems" />
+    </TelerikStackLayout>
+</TelerikRootComponent>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+}
+
+<style>
+    /* .parent-container {
+        height = 850px;
+        width = 450px;
+        padding = 3px;
+
+    } */
+
+</style>

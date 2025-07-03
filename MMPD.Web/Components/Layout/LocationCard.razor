@@ -1,0 +1,208 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.Blazor.Data
+@using Telerik.Blazor.Extensions
+@using Telerik.Blazor.Services
+@using Telerik.SvgIcons
+@using Telerik.DataSource
+@using Telerik.DataSource.Extensions
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+
+
+
+@inject AppDbContext dbContext
+
+<TelerikWindow @ref="LocInfoWindow"
+Modal="true"
+@bind-Visible="@WindowVisible"
+Width="auto"
+Height="auto"
+Resizable="false"
+Draggable="false"
+Class="user-card"
+CloseOnOverlayClick="true"
+>
+
+    <WindowTitle>
+        @if (SelectedLocation != null)
+        {
+            <h3>@SelectedLocation.LocName</h3>
+        }
+    </WindowTitle>
+    <WindowActions>
+        <WindowAction Name="Close" />
+    </WindowActions>
+    <WindowContent>
+        @if (SelectedLocation != null)
+        {
+            <section>
+                <div>
+                    <div class="card-row">
+                        <label>Location Number:</label>
+                        <span>@SelectedLocation.LocNum</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Street Address:</label>
+                        <span>@SelectedLocation.Address</span>
+                    </div>
+                    <div class="card-row">
+                        <label>City:</label>
+                        <span>@SelectedLocation.City</span>
+                    </div>
+                    <div class="card-row">
+                        <label>State:</label>
+                        <span>@SelectedLocation.State</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Zipcode:</label>
+                        <span>@SelectedLocation.Zipcode</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Phone Number:</label>
+                        <span>@SelectedLocation.PhoneNumber</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Fax Number:</label>
+                        <span>@SelectedLocation.FaxNumber</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Email:</label>
+                        <span>@SelectedLocation.Email</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Hours:</label>
+                        <span>@SelectedLocation.Hours</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Location Type:</label>
+                        <span>@{
+                                var locTypeName = LocationTypes.FirstOrDefault(lt => lt.Key == SelectedLocation.Loctype).Value ?? "Unknown";
+                            }
+                            @locTypeName
+                        </span>
+                    </div>
+                    <div class="card-row">
+                        <label>Location Manager:</label>
+                        <span>@SelectedLocation.StoreManager</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Area Manager:</label>
+                        <span>@SelectedLocation.AreaManager</span>
+                    </div>
+                    <div class="card-row">
+                        <label>Location Added:</label>
+                        <span>@SelectedLocation.RecordAdd?.ToString("MM/dd/yyy")</span>
+                    </div>
+                </div>
+            </section>
+        }
+
+    </WindowContent>
+
+    <WindowFooter>
+        <TelerikButton OnClick="() => WindowVisible = false" ThemeColor="primary">Close</TelerikButton>
+    </WindowFooter>
+
+</TelerikWindow>
+
+<style>
+    label {
+    padding: 8px 6px 8px 4px;
+    margin-bottom: 15px;
+    /* margin: 5px 20px; */
+    font-weight: 500;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    background-color: var(--kendo-color-primary);
+    color: white;
+    }
+
+    .user-card {
+    /* padding: 5px; */
+    /* border-radius: 16px 16px 16px 16px;
+    border: 0px solid; */
+    }
+
+    .user-card span {
+    font-weight: 600;
+    padding: 3px 5px;
+    font-size: 1em;
+    background-color: inherit;
+    }
+
+        .user-card .k-window-titlebar-actions {
+            background-color: var(--kendo-color-primary-emphasis);
+        }
+
+    .card-row {
+    padding: 8px 0;
+    /* border: solid; */
+    /* border-top: dashed 1px; */
+    border-bottom: dashed 1px;
+    border-left: 0.25px;
+    border-right: 0.25px;
+    border-color: var(--kendo-color-primary);
+    /* background: inherit; */
+    /* background-color: var(--kendo-color-); */
+    }
+</style>
+
+@code {
+    private bool WindowVisible { get; set; }
+    private Location? SelectedLocation { get; set; }
+    // public List<Location> locations { get; set; } = new List<Location>();
+    // private List<Department> departments { get; set; } = new List<Department>();
+    private List<Location> locations { get; set; } = new List<Location>();
+    private TelerikWindow? LocInfoWindow { get; set; }
+
+    // [Parameter]
+    // public List<Location> Locations { get; set; } = new();
+    [Parameter]
+    public List<Department> Departments { get; set; } = new();
+
+    private int LocTypeValue { get; set; }
+
+    public void ShowLocationInfo(Location location)
+    {
+        SelectedLocation = location;
+        WindowVisible = true;
+        StateHasChanged();
+        // OpenWindow();
+    }
+
+    private string GetWindowTitle()
+    {
+        return SelectedLocation != null
+            ? $"{SelectedLocation.LocName} {SelectedLocation.LocNum} - Details"
+            : "Employee Information";
+    }
+
+    private void OpenWindow()
+    {
+        WindowVisible = true;
+    }
+
+    private List<KeyValuePair<int, string>> LocationTypes = new List<KeyValuePair<int, string>>()
+    {
+        new KeyValuePair<int, string>(1, "Corporate"),
+        new KeyValuePair<int, string>(2, "Metal Mart"),
+        new KeyValuePair<int, string>(3, "Service Center"),
+        new KeyValuePair<int, string>(4, "Plant")
+    };
+
+    public static string locTypeList(Location location)
+    {
+        return location.Loctype switch
+        {
+            1 => "Corporate",
+            2 => "Metal Mart",
+            3 => "Service Center",
+            _ => "Plant",
+        };
+
+    }
+
+}

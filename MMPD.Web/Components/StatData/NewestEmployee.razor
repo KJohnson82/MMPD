@@ -1,0 +1,47 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+
+@inject AppDbContext dbContext
+
+
+@if (employees == null)
+{
+    <p>Loading...</p>
+}
+else if (!employees.Any())
+{
+    <p>No employees found.</p>
+}
+else
+{
+    <ol>
+        @foreach (var employee in employees)
+        {
+            <li >
+                <strong>@employee.FirstName @employee.LastName</strong> <br />
+                Added On: @employee.RecordAdd?.ToString("MM/dd/yyyy") <br />
+                
+            </li>
+        }
+    </ol>
+}
+
+
+@code {
+    private List<Employee> employees { get; set; } = new List<Employee>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await dbContext.Employees
+            .OrderByDescending(e => e.RecordAdd)
+            .Take(3)
+            .ToListAsync();
+    }
+}

@@ -1,0 +1,118 @@
+﻿@using Telerik.SvgIcons
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+
+
+@* <div  >
+    <TelerikCard Orientation="CardOrientation.Horizontal" Height="125px" ThemeColor="@ThemeConstants.Card.ThemeColor.Tertiary" Class="page-header">
+
+        
+            <CardSeparator></CardSeparator>
+
+            <CardBody Class="title-body">
+                <h1 class="card-title">@PageTitle</h1>
+                
+            </CardBody>
+        
+            <CardBody Class="icon-body">
+                <TelerikSvgIcon Icon="@CardIcon" Class="card-icon" ></TelerikSvgIcon>
+            </CardBody>
+            
+
+    </TelerikCard>
+
+</div> *@
+
+<div>
+    <TelerikCard Orientation="CardOrientation.Horizontal" Height="125px" ThemeColor="@ThemeConstants.Card.ThemeColor.Tertiary" Class="page-header">
+        <CardBody Class="title-body">
+            <h1 class="card-title">@PageTitle</h1>
+            <TelerikSvgIcon Icon="@CardIcon" Class="card-icon"></TelerikSvgIcon>
+        </CardBody>
+    </TelerikCard>
+</div>
+
+
+<TelerikMediaQuery Media="(min-width: 641px)" OnChange="@OnMediaQueryChange" />
+
+@code {
+    private bool LargeScreen { get; set; } = true;
+
+    private bool DrawerExpanded { get; set; } = true;
+
+    [Parameter]
+    public required string PageTitle { get; set; }
+
+    [Parameter]
+    public ISvgIcon CardIcon { get; set; } 
+
+    private void OnMediaQueryChange(bool mediaQueryMatched)
+    {
+        LargeScreen = DrawerExpanded = mediaQueryMatched;
+    }
+
+    private void DrawerExpandedChanged(bool newExpanded)
+    {
+        if (!LargeScreen && !newExpanded)
+        {
+            DrawerExpanded = newExpanded;
+        }
+    }
+}
+
+<style>
+    .page-header {
+        opacity: 100%;
+        background: none;
+        background-color: var(--kendo-color-primary);
+        margin: 0.5% 0 0.5% 0;
+        display: flex;
+        align-items: center;
+        
+
+    }
+    .title-body {
+        
+        display: flex;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+        flex-grow: 1;
+        gap: 20px;
+
+        
+    }
+    .card-title {
+        color: white;
+        text-transform: uppercase;
+        text-align: start;
+        font-family: Montserrat;
+        font-weight: 600;
+        font-size: 3.5em;
+        padding: 5px 0 5px 5%;
+        margin: 5px 0;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+
+    }
+
+    .icon-body {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        align-content: start;
+        background-color: aqua;
+
+    }
+
+    .card-icon {
+        color: white;
+        align-self: start;
+        /* margin: 10px 0; */
+        height: 65px;
+        width: 65px;
+    }
+
+</style>

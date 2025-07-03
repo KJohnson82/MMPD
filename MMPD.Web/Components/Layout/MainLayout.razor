@@ -1,0 +1,176 @@
+﻿@inherits LayoutComponentBase
+@using Telerik.Blazor.Components
+@using Telerik.Blazor
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+@using Telerik.SvgIcons
+
+@inject NavigationManager NavManager
+
+@inject ExportData ExportData
+
+@implements IDisposable
+
+<TelerikRootComponent>
+
+    <TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Primary"
+                   Class="appbar-top">
+        <AppBarSpacer Size="2em"></AppBarSpacer>
+        <AppBarSection>
+            <TelerikSvgIcon Icon="@CustomIcons.Waving_Hand" Flip="@IconFlip.Horizontal" Size="@ThemeConstants.SvgIcon.Size.ExtraLarge"></TelerikSvgIcon>
+        </AppBarSection>
+
+        <AppBarSection>
+            <div class="nav-title">
+                <NavLink href="">McElroy Phone Directory</NavLink>
+            </div>
+        </AppBarSection>
+        <AppBarSpacer />
+        <AppBarSpacer />
+        <AppBarSection>
+            @* I have not hooked this up yet, I will wait until last to do it. *@
+            <TelerikButton Icon="@SvgIcon.FileBac" OnClick="ExportJson" FillMode="@Telerik.Blazor.ThemeConstants.Button.FillMode.Outline">Export Data </TelerikButton>
+        </AppBarSection>
+    </TelerikAppBar>
+
+    @* <TelerikTooltip TargetSelector=".nav-item" Position="@TooltipPosition.Right" ShowOn="@TooltipShowEvent.Hover"   /> *@
+
+
+    <TelerikDrawer Data="@DrawerData"
+                   Expanded="false"
+                   @bind-SelectedItem="@DrawerSelectedItem"
+                   Mode="@DrawerMode.Push"
+                   MiniMode="true"
+                   Class="mainlayout-drawer nav-item">
+
+        <DrawerContent>
+            <main>
+                @Body
+            </main>
+        </DrawerContent>
+
+    </TelerikDrawer>
+
+    <TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Base"
+                   Class="appbar-bottom">
+        <AppBarSpacer />
+        <AppBarSection>
+            <div id="copyright">Copyright &copy; @DateTime.Today.Year McElroy Metal Inc. All rights reserved.</div>
+        </AppBarSection>
+        <AppBarSpacer />
+    </TelerikAppBar>
+
+    <TelerikMediaQuery Media="(min-width: 641px)" OnChange="@OnMediaQueryChange" />
+
+</TelerikRootComponent>
+
+
+<style>
+    .nav-title a, .nav-title a:hover {
+        display: flex;
+        gap: .2em;
+        align-items: start;
+        margin: 0;
+        padding: 0;
+        font-size: 1.75em;
+        font-weight: 600;
+        text-decoration: none;
+        color: inherit;
+        padding: 0 20px 0 10px;
+        font-family: Montserrat;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+
+</style>
+
+@code {
+
+    private IEnumerable<NavItem> DrawerData { get; set; } = new List<NavItem>()
+    {
+        new NavItem("Home", CustomIcons.Home, "/Home", "HOME"),
+        new NavItem("Employees", CustomIcons.Face, "/Employees", "EMPLOYEES"),
+        new NavItem("Departments", CustomIcons.Domain, "/Departments", "DEPARTMENTS"),
+        new NavItem("Locations", CustomIcons.Factory, "/Locations", "LOCATIONS")
+    };
+
+    private async Task ExportJson()
+    {
+        await ExportData.ExportJsonToFileAsync();
+    }
+
+    private bool DrawerExpanded { get; set; } = true;
+
+    private NavItem? DrawerSelectedItem { get; set; }
+
+    private bool LargeScreen { get; set; } = true;
+
+    TooltipPosition position { get; set; } = TooltipPosition.Right;
+
+    private void OnMediaQueryChange(bool mediaQueryMatched)
+    {
+        LargeScreen = DrawerExpanded = mediaQueryMatched;
+    }
+
+    private void DrawerExpandedChanged(bool newExpanded)
+    {
+        if (!LargeScreen && !newExpanded)
+        {
+            DrawerExpanded = newExpanded;
+        }
+    }
+
+    private void SelectDrawerItem()
+    {
+        var url = NavManager.Uri.Replace(NavManager.BaseUri, "/Home").ToLowerInvariant();
+
+        DrawerSelectedItem = DrawerData.FirstOrDefault(x => x.Url.ToLowerInvariant() == url);
+    }
+
+    private void NavManagerLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        var url = args.Location.Replace(NavManager.BaseUri, "/Home").ToLowerInvariant();
+
+        DrawerSelectedItem = DrawerData.FirstOrDefault(x => x.Url.ToLowerInvariant() == url);
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnInitialized()
+    {
+        SelectDrawerItem();
+
+        NavManager.LocationChanged += NavManagerLocationChanged;
+
+        base.OnInitialized();
+    }
+
+    public void Dispose()
+    {
+        if (NavManager != null)
+        {
+            NavManager.LocationChanged -= NavManagerLocationChanged;
+        }
+    }
+
+    public class NavItem
+    {
+        public string Text { get; set; }
+        public ISvgIcon Icon { get; set; }
+        public string Url { get; set; } = string.Empty;
+        public string Tooltip { get; set; }
+
+        public NavItem(string text, ISvgIcon icon, string url, string tooltip)
+        {
+            Text = text;
+            Icon = icon;
+            Url = url;
+            Tooltip = tooltip;
+        }
+    }
+}
+    

@@ -1,0 +1,189 @@
+﻿@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using Microsoft.EntityFrameworkCore
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.Blazor.Data
+@using Telerik.Blazor.Extensions
+@using Telerik.Blazor.Services
+@using Telerik.SvgIcons
+@using Telerik.DataSource
+@using Telerik.DataSource.Extensions
+
+
+
+@inject AppDbContext dbContext
+
+
+<TelerikWindow @ref="EmpInfoWindow"
+Modal="true"
+@bind-Visible="@WindowVisible"
+Width="auto"
+Height="auto"
+Resizable="false"
+Draggable="false"
+Class="user-card"
+CloseOnOverlayClick="true">
+
+    <WindowTitle>
+        @if (SelectedEmployee != null)
+        {
+            @* <h3>@SelectedEmployee.FirstName @SelectedEmployee.LastName</h3> *@
+            <h3 >@SelectedEmployee.FirstName @SelectedEmployee.LastName</h3>
+        }
+
+    </WindowTitle>
+    <WindowActions>
+        <WindowAction Name="Close" />
+    </WindowActions> 
+    <WindowContent>
+        @if (SelectedEmployee != null)
+        {
+            <section >
+                <div >
+                    @* <h4>Employee Information</h4> *@
+                    <div>
+                        @* <div>
+                            <label>First Name:</label>
+                            <span>@SelectedEmployee.FirstName</span>
+                        </div>
+                        <div>
+                            <label>Last Name:</label>
+                            <span>@SelectedEmployee.LastName</span>
+                        </div> *@
+                        <div class="card-row">
+                            <label>Job Title:</label>
+                            <span>@SelectedEmployee.JobTitle</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Is Manager:</label>
+                            <span>@(SelectedEmployee.IsManager == true ? "Yes" : "No")</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Phone Number:</label>
+                            <span>@SelectedEmployee.PhoneNumber</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Alt. Number:</label>
+                            <span>@SelectedEmployee.CellNumber</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Extension:</label>
+                            <span>@SelectedEmployee.Extension</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Email:</label>
+                            <span>@SelectedEmployee.Email</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Network ID:</label>
+                            <span>@SelectedEmployee.NetworkId</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Department:</label>
+                            <span>@Departments.FirstOrDefault(d => d.Id == SelectedEmployee.Department)?.DeptName</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Location:</label>
+                            <span>@Locations.FirstOrDefault(l => l.Id == SelectedEmployee.Location)?.LocName</span>
+                        </div>
+                        <div class="card-row">
+                            <label>Employee Added:</label>
+                            <span>@SelectedEmployee.RecordAdd?.ToString("MM/dd/yyy")</span>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        }
+    </WindowContent>
+    <WindowFooter>
+        <TelerikButton OnClick="() => WindowVisible = false" ThemeColor="primary">Close</TelerikButton>
+    </WindowFooter>
+
+</TelerikWindow>
+
+<style>
+    label {
+        padding: 8px 6px 8px 4px;
+        margin-bottom: 15px;
+        /* margin: 5px 20px; */
+        font-weight: 500;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        background-color: var(--kendo-color-primary);
+        color: white;
+    }
+
+    .user-card {
+        /* padding: 5px; */
+        /* border-radius: 16px 16px 16px 16px;
+        border: 0px solid; */
+        
+
+    }
+
+    .user-card span {
+        font-weight: 600;
+        padding: 3px 5px;
+        font-size: 1em;
+        /* background-color: var(--kendo-color-light); */
+    }
+
+    .user-card .k-window-titlebar-actions {
+            background-color: var(--kendo-color-primary-emphasis);
+    }
+
+    .card-row {
+        padding: 8px 0;
+        /* border: solid; */
+        /* border-top: dashed 1px; */
+        border-bottom: dashed 1px;
+        border-left: 0.25px;
+        border-right: 0.25px;
+        border-color: var(--kendo-color-primary);
+        /* background: inherit; */
+        /* background-color: var(--kendo-color-); */
+    }
+</style>
+
+@code {
+
+    private bool WindowVisible { get; set; }
+    private Employee? SelectedEmployee { get; set; }
+    // public List<Location> locations { get; set; } = new List<Location>();
+    // private List<Department> departments { get; set; } = new List<Department>();
+    private List<Employee> employees { get; set; } = new List<Employee>();
+    private TelerikWindow? EmpInfoWindow { get; set; }
+
+    [Parameter]
+    public List<Location> Locations { get; set; } = new();
+    [Parameter]
+    public List<Department> Departments { get; set; } = new();
+
+    
+
+    public void ShowEmployeeInfo(Employee employee)
+    {
+        SelectedEmployee = employee;
+        WindowVisible = true;
+        StateHasChanged();
+        // OpenWindow();
+    }
+
+    private string GetWindowTitle()
+    {
+        return SelectedEmployee != null
+            ? $"{SelectedEmployee.FirstName} {SelectedEmployee.LastName} - Details"
+            : "Employee Information";
+    }
+
+    private void OpenWindow()
+    {
+        WindowVisible = true;
+    }
+
+
+
+}

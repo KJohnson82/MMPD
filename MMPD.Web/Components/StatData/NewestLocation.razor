@@ -1,0 +1,47 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+
+
+@inject AppDbContext dbContext
+
+@if (locations == null)
+{
+    <p>Loading...</p>
+}
+else if (!locations.Any())
+{
+    <p>No employees found.</p>
+}
+else
+{
+    <ol>
+        @foreach (var location in locations)
+        {
+            <li>
+                <strong>@location.LocName - @location.LocNum </strong>  <br />
+                Added On: @location.RecordAdd?.ToString("MM/dd/yyyy")
+                
+
+            </li>
+        }
+    </ol>
+}
+
+@code {
+    private List<Location> locations { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        locations = await dbContext.Locations
+            .OrderByDescending(l => l.RecordAdd)
+            .Take(3)
+            .ToListAsync();
+    }
+}

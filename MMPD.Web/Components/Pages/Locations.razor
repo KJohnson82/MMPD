@@ -1,0 +1,346 @@
+
+@page "/Locations"
+@using Microsoft.EntityFrameworkCore
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+@using MMPD.Web.Components.Layout
+
+
+
+<PageHeader PageTitle="Locations" CardIcon="@CustomIcons.Factory" />
+
+@inject AppDbContext dbContext
+
+<TelerikGrid @ref="GridRef"
+             Data="@locations"
+             Pageable="true"
+             PageSize="10"
+             Sortable="true"
+             SortMode="@SortMode.Single"
+             Size="@ThemeConstants.Grid.Size.Small"
+             Resizable="true"
+             Groupable="true"
+             SelectionMode="GridSelectionMode.Single"
+             AutoGenerateColumns="false"
+             EditMode="@GridEditMode.Popup"
+             Class="grid-text"
+             OnUpdate="@Update"
+             OnCreate="@Add"
+             OnDelete="@Delete">
+
+    <GridSettings>
+        <GridPopupEditSettings MaxHeight="600px"
+                               MaxWidth="600px"
+                               Title="Edit Location"></GridPopupEditSettings>
+        <GridPopupEditFormSettings Columns="2"
+                                   ColumnSpacing="5px"
+                                   Orientation="@FormOrientation.Horizontal"
+                                   ButtonsLayout="FormButtonsLayout.End">
+
+        </GridPopupEditFormSettings>
+    </GridSettings>
+    <GridToolBarTemplate>
+        <GridSearchBox Placeholder="Search..." DebounceDelay="300" Fields="@SearchableFields"></GridSearchBox>
+        <GridCommandButton Command="Add" Icon="SvgIcon.Plus">Add</GridCommandButton>
+    </GridToolBarTemplate>
+    <GridColumns>
+        <GridColumn Field="@nameof(Location.LocName)" Title="Location Name" Sortable="true" />
+        <GridColumn Field="@nameof(Location.LocNum)" Title="Loc. # " Sortable="true" Width="100px">
+            <Template>
+                @{
+                    var location = (Location)context;
+                }
+                @location.LocNum
+            </Template>
+            <EditorTemplate>
+                @{
+                    var location = (Location)context;
+                }
+                <TelerikNumericTextBox @bind-Value="location.LocNum"
+                                       Min="1"
+                                       Max="1000"
+                                       Arrows="false"
+                                       Placeholder="Enter Loc. #"
+                                       Width="100px" />
+
+            </EditorTemplate>
+        </GridColumn>
+
+        <GridColumn Field="@nameof(Location.Address)" Title="Street Address" />
+        <GridColumn Field="@nameof(Location.City)" Title="City" Sortable="true" />
+        <GridColumn Field="@nameof(Location.State)" Title="State" Sortable="true" Width="75px" />
+        <GridColumn Field="@nameof(Location.Zipcode)" Title="Zipcode" Width="75px" />
+        <GridColumn Field="@nameof(Location.PhoneNumber)" Title="Phone #" />
+        <GridColumn Field="@nameof(Location.FaxNumber)" Title="Fax #" Visible="false" />
+        <GridColumn Field="@nameof(Location.Email)" Title="Location Email" Visible="false" />
+        <GridColumn Field="@nameof(Location.Hours)" Title="Hours" Visible="false" />
+        <GridColumn Field="@nameof(Location.Loctype)" Title="Location Type">
+            <Template>
+                @{
+                    var location = (Location)context; // Define 'location' inside the template
+                    var locTypeName = LocationTypes.FirstOrDefault(lt => lt.Key == location.Loctype).Value ?? "Unknown";
+                }
+                @locTypeName
+            </Template>
+            <EditorTemplate>
+                @{
+                    var location = (Location)context; // Define 'location' inside the editor template
+                }
+                <TelerikDropDownList Data="@LocationTypes"
+                                     @bind-Value="location.Loctype"
+                                     ValueField="Key"
+                                     TextField="Value" />
+            </EditorTemplate>
+        </GridColumn>
+
+        <GridColumn Field="@nameof(Location.AreaManager)" Title="Area Manger" Visible="false" />
+        <GridColumn Field="@nameof(Location.StoreManager)" Title="Store Manager" Visible="false" />
+        <GridColumn Field="@nameof(Location.RecordAdd)" Editable="false" Visible="false" />
+        <GridCommandColumn Width="300px" Title="Location Admin">
+            <GridCommandButton Command="Info" OnClick="() => ShowLocationInfo((Location)context)" Icon="@CustomIcons.Factory">Info</GridCommandButton>
+            <GridCommandButton Command="Edit" Icon="SvgIcon.Pencil">Edit</GridCommandButton>
+            <GridCommandButton Command="Save" Icon="SvgIcon.Save" ShowInEdit="true">Save</GridCommandButton>
+            <GridCommandButton Command="Cancel" Icon="SvgIcon.Cancel" ShowInEdit="true">Cancel</GridCommandButton>
+            <GridCommandButton Command="Delete" Icon="SvgIcon.Trash">Delete</GridCommandButton>
+        </GridCommandColumn>
+    </GridColumns>
+
+</TelerikGrid>
+
+<LocationCard @ref="LocationCardRef" />
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+
+<style>
+    .grid-text {
+        font-family: Roboto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .employee-table {
+        display: grid;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        min-width: 400px;
+    }
+
+    .k-window-titlebar {
+        background-color: var(--kendo-color-primary);
+        color: white;
+        font-weight: 700;
+        font-size: 2em;
+        padding: 10px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .employee-table thead tr {
+        background-color: var(--kendo-color-primary);
+        display: flex;
+    }
+
+</style>
+
+@code {
+
+    public List<Location> locations { get; set; } = new List<Location>();
+    private TelerikGrid<Location> GridRef { get; set; }
+    private Location? SelectedLocation { get; set; }
+    private TelerikWindow? LocInfoWindow { get; set; }
+    private bool WindowVisible { get; set; }
+    private LocationCard? LocationCardRef { get; set; }
+
+    private int LocTypeValue { get; set; }
+    // public static string PageTitle = "Locations";
+
+    public void ShowLocationInfo(Location location)
+    {
+        LocationCardRef.ShowLocationInfo(location);
+    }
+
+    private string GetWindowTitle()
+    {
+        return SelectedLocation != null
+            ? $"{SelectedLocation.LocName} - {SelectedLocation.LocNum} - Details"
+            : "Location Information";
+    }
+
+    private void OpenWindow()
+    {
+        WindowVisible = true;
+    }
+
+    private bool isLoading = true;
+
+    private List<KeyValuePair<int, string>> LocationTypes = new List<KeyValuePair<int, string>>()
+    {
+        new KeyValuePair<int, string>(1, "Corporate"),
+        new KeyValuePair<int, string>(2, "Metal Mart"),
+        new KeyValuePair<int, string>(3, "Service Center"),
+        new KeyValuePair<int, string>(4, "Plant")
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            locations = await dbContext.Locations!
+                .Where(l => l.Active == true)
+                .OrderBy(l => l.LocNum)
+                .ToListAsync();
+
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception (e.g., log it, show a message to the user, etc.)
+            Console.Error.WriteLine($"An error occurred while loading data: {ex.Message}");
+            // Optionally, you can set an error message to display in the UI
+            // errorMessage = "An error occurred while loading data.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnLocNumChange(Location location, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int locNum))
+        {
+            location.LocNum = locNum;
+        }
+        else
+        {
+            location.LocNum = null;
+        }
+    }
+
+    async Task Update(GridCommandEventArgs args)
+    {
+        // var index = locations.FindIndex(item => item.Id.Equals(((Location)args.Item).Id));
+
+        // locations[index] = (Location)args.Item;
+
+        var index = locations.FindIndex(l => l.Id == ((Location)args.Item).Id);
+        if (index != -1)
+        {
+            locations[index] = (Location)args.Item;
+        }
+    }
+
+    async Task Add(GridCommandEventArgs args)
+    {
+        try
+        {
+            var location = (Location)args.Item;
+            location.RecordAdd = DateTime.UtcNow;
+            await dbContext.Locations.AddAsync(location);
+            await dbContext.SaveChangesAsync();
+
+            locations.Add(location);
+        }
+        catch (Exception ex)
+        {
+
+            Console.Error.WriteLine($"An error occurred while adding location: {ex.Message}");
+        }
+
+        // if (args.Item == null)
+        // {
+        //     args.Item = new Location();
+        // }
+
+    }
+
+    async Task Delete(GridCommandEventArgs args)
+    {
+        // locations.RemoveAll(item => item.Id.Equals(((Location)args.Item).Id));
+
+        try
+        {
+            var location = (Location)args.Item;
+            var existingLocation = await dbContext.Locations.FindAsync(location.Id);
+
+            if (existingLocation != null)
+            {
+                // locations.Remove(location);
+                dbContext.Locations.Remove(existingLocation);
+                await dbContext.SaveChangesAsync();
+                locations.Remove(location);
+            }
+
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+
+    }
+
+    private async Task SaveItem(Location item, bool isNew)
+    {
+        if (isNew)
+        {
+            await Add(new GridCommandEventArgs { Item = item });
+        }
+        else
+        {
+            await Update(new GridCommandEventArgs { Item = item });
+        }
+        await ClosePopup();
+    }
+
+    private async Task ClosePopup()
+    {
+        var state = GridRef?.GetState();
+        if (state != null)
+        {
+            state.OriginalEditItem = null;
+            state.EditItem = null;
+            state.InsertedItem = null;
+
+            await GridRef?.SetStateAsync(state);
+        }
+    }
+
+
+
+    public static string locTypeList(Location location)
+    {
+        return location.Loctype switch
+        {
+            1 => "Corporate",
+            2 => "Metal Mart",
+            3 => "Service Center",
+            _ => "Plant",
+        };
+
+    }
+
+    private List<string> SearchableFields = new List<string> { nameof(Location.LocName), nameof(Location.LocNum), nameof(Location.City), nameof(Location.State), nameof(Location.PhoneNumber), nameof(Location.Email) };
+}
+

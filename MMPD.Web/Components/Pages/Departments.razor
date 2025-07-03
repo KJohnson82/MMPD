@@ -1,0 +1,242 @@
+@page "/Departments"
+
+@using Microsoft.EntityFrameworkCore
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+@using MMPD.Web.Components.Layout
+
+@inject AppDbContext dbContext
+
+<PageHeader PageTitle="Departments" CardIcon="@CustomIcons.Domain" />
+
+<TelerikGrid Data="@departments"
+             Pageable="true"
+             PageSize="10"
+             Sortable="true"
+             SortMode="@SortMode.Single"
+             Size="@ThemeConstants.Grid.Size.Small"
+             Resizable="true"
+             Groupable="true"
+             SelectionMode="GridSelectionMode.Single"
+             AutoGenerateColumns="false"
+             Class="grid-text"
+             EditMode="@GridEditMode.Popup"
+             OnUpdate="@Update"
+             OnCreate="@Add"
+             OnDelete="@Delete">
+
+
+    <GridSettings>
+        <GridPopupEditSettings MaxHeight="600px"
+                               MaxWidth="600px"
+                               Title="Edit Location"></GridPopupEditSettings>
+        <GridPopupEditFormSettings Columns="2"
+                                   ColumnSpacing="5px"
+                                   Orientation="@FormOrientation.Horizontal"
+                                   ButtonsLayout="FormButtonsLayout.End">
+
+        </GridPopupEditFormSettings>
+    </GridSettings>
+    <GridToolBarTemplate>
+        <GridSearchBox Placeholder="Search..." DebounceDelay="300" Fields="@SearchableFields"></GridSearchBox>
+        <GridCommandButton Command="Add" Icon="SvgIcon.Plus">Add</GridCommandButton>
+    </GridToolBarTemplate>
+    <GridColumns>
+        <GridColumn Field="DeptName" Title="Department Name" Sortable="true" />
+        <GridColumn Field="@nameof(Department.Location)" Title="Department Location">
+            <Template>
+                @{
+                    var department = (Department)context;
+                    var locationName = locations.FirstOrDefault(l => l.Id == department.Location)?.LocName;
+
+                }
+                @locationName
+            </Template>
+            <EditorTemplate>
+                @{
+                    var department = (Department)context;
+                }
+                <TelerikDropDownList Data="@locations"
+                                     @bind-Value="@department.Location"
+                                     ValueField="Id"
+                                     TextField="LocName" 
+                                     AdaptiveMode="AdaptiveMode.Auto"
+                                    
+                                     />
+            </EditorTemplate>
+        </GridColumn>
+        <GridColumn Field="DeptManager" Title="Department Manager" Sortable="false" />
+        <GridColumn Field="DeptPhone" Title="Phone#" Sortable="false" />
+        <GridColumn Field="DeptEmail" Title="Email" Sortable="false" />
+        <GridColumn Field="DeptFax" Title="Fax" Sortable="false" Visible="false" />
+        @* <GridColumn Field="LocationId" Sortable="false" Visible="false" Editable="false" /> *@
+        <GridColumn Field="RecordAdd" Sortable="false" Visible="false" Editable="false" />
+        <GridColumn Field="Active" Sortable="true" Visible="false" Editable="true" />
+        <GridCommandColumn Width="300px" Title="Department Admin">
+            <GridCommandButton Command="Info" OnClick="() => ShowDepartmentInfo((Department)context)" Icon="@CustomIcons.Domain">Info</GridCommandButton>
+            <GridCommandButton Command="Edit" Icon="SvgIcon.Pencil" >Edit</GridCommandButton>
+            <GridCommandButton Command="Save" Icon="SvgIcon.Save" ShowInEdit="true">Save</GridCommandButton>
+            <GridCommandButton Command="Cancel" Icon="SvgIcon.Cancel" ShowInEdit="true">Cancel</GridCommandButton>
+            <GridCommandButton Command="Delete" Icon="SvgIcon.Trash">Delete</GridCommandButton>
+        </GridCommandColumn>
+    </GridColumns>
+</TelerikGrid>
+
+<DepartmentCard @ref="DepartmentCardRef" Locations="@locations" />
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+
+<style>
+    .grid-text {
+        font-family: Roboto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .employee-table {
+        display: grid;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        min-width: 400px;
+    }
+
+    .k-window-titlebar {
+        background-color: var(--kendo-color-primary);
+        color: white;
+        font-weight: 700;
+        font-size: 2em;
+        padding: 10px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+
+
+    .employee-table thead tr {
+        background-color: var(--kendo-color-primary);
+        display: flex;
+    }
+</style>
+
+@code {
+
+    private List<Department> departments { get; set; } = new List<Department>();
+    private bool isLoading = true;
+    public List<Location> locations { get; set; } = new List<Location>();
+    private TelerikWindow? DeptInfoWindow { get; set; }
+    private Department? SelectedDepartment { get; set; }
+    private bool WindowVisible { get; set; }
+    private DepartmentCard DepartmentCardRef { get; set; }
+
+    private void OpenWindow()
+    {
+        WindowVisible = true;
+    }
+
+    private string GetWindowTitle()
+    {
+        return SelectedDepartment != null
+        ? $"{SelectedDepartment.DeptName} - Details" : "Department Information";
+    }
+
+    public void ShowDepartmentInfo(Department department)
+    {
+        DepartmentCardRef.ShowDepartmentInfo(department);
+
+    }
+
+
+    // public List<Department> Data { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            locations = await dbContext.Locations!.ToListAsync();
+            departments = await dbContext.Departments!
+            .Where(d => d.Active == true)
+                .Include(d => d.DeptLocation)
+                .OrderBy(d => d.DeptLocation!.LocName)
+                .ThenBy(d => d.DeptName)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception (e.g., log it, show a message to the user, etc.)
+            Console.Error.WriteLine($"An error occurred while loading data: {ex.Message}");
+            // Optionally, you can set an error message to display in the UI
+            // errorMessage = "An error occurred while loading data.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    async Task Update(GridCommandEventArgs args)
+    {
+        // var index = departments.FindIndex(item => item.Id.Equals(((Department)args.Item).Id));
+
+        // departments[index] = (Department)args.Item;
+
+        var department = (Department)args.Item;
+        var existingDepartment = await dbContext.Departments.FindAsync(department.Id);
+
+        if (existingDepartment != null  )
+        {
+            dbContext.Entry(existingDepartment).CurrentValues.SetValues(department);
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+    async Task Add(GridCommandEventArgs args)
+    {
+        // ((Department)args.Item).Id = departments.Any() ? departments.Max(item => item.Id) + 1 : 1;
+
+        // departments.Add((Department)args.Item);
+
+        var department = (Department)args.Item;
+        department.RecordAdd = DateTime.UtcNow;
+        await dbContext.Departments.AddAsync(department);
+        await dbContext.SaveChangesAsync();
+        departments.Add(department);
+    }
+
+    async Task Delete(GridCommandEventArgs args)
+    {
+        // departments.RemoveAll(item => item.Id.Equals(((Department)args.Item).Id));
+
+        var department = (Department)args.Item;
+        var existingDepartment = await dbContext.Departments.FindAsync(department.Id);
+
+        if (existingDepartment != null)
+        {
+            dbContext.Departments.Remove(existingDepartment);
+            await dbContext.SaveChangesAsync();
+            departments.Remove(department);
+        }
+    }
+
+    private List<string> SearchableFields = new List<string> { nameof(Department.DeptName), nameof(Department.DeptManager), nameof(Department.DeptEmail), nameof(Employee.Extension) };
+}
+

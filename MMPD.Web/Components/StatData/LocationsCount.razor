@@ -1,0 +1,79 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Data.Data
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+
+
+@inject AppDbContext dbContext
+
+<TelerikChart>
+    <ChartSeriesItems>
+        <ChartSeries Type="ChartSeriesType.Donut" Data="@locationsDonut" Field="@nameof(LocationsModel.LocationValue)" CategoryField="@nameof(LocationsModel.TypeName)">
+            <ChartSeriesLabels Visible="true" Background="transparent"   />
+        </ChartSeries>
+    </ChartSeriesItems>
+    <ChartTitle Text="Location Totals by Type" ></ChartTitle>
+    <ChartLegend Position="ChartLegendPosition.Bottom" Background="" > </ChartLegend>
+</TelerikChart>
+
+@code {
+
+    // public List<Location> locations { get; set; }
+
+    // public class LocationsModel
+    // {
+    //     public string TypeName { get; set; }
+    //     public int LocationValue { get; set; }
+    //     public bool LegendDisplay { get; set; }
+    // }
+
+    public List<LocationsModel> locationsDonut { get; set; } = new();
+
+    public class LocationsModel
+    {
+        public string TypeName { get; set; } = "";
+        public int LocationValue { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        locationsDonut = await dbContext.Locations
+            .Where(l => l.Loctype != 1)
+            .GroupBy(l => l.Loctype)
+            .Select(g => new LocationsModel
+                {
+                    TypeName = g.Key == 2 ? "Metal Mart" : g.Key == 3 ? "Service Center" : "Plant",
+                    LocationValue = g.Count()
+                })
+            .ToListAsync();
+
+        // new LocationsModel
+        //     {
+        //         TypeName = "Metal Mart",
+        //         LocationValue = locationsDonut.Count()
+        //     };
+
+        // new LocationsModel
+        //     {
+        //         TypeName = "Service Center",
+        //         LocationValue = locationsDonut.Count()
+        //     };
+
+        // new LocationsModel
+        //     {
+        //         TypeName = "Plant",
+        //         LocationValue = locationsDonut.Count()
+        //     };
+    }
+
+    // private List<LocationsModel> DonutData = new List<LocationsModel>()
+    // {
+        
+    // }
+
+}

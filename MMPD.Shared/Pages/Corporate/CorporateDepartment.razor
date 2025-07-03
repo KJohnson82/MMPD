@@ -1,0 +1,111 @@
+﻿@page "/corporate/{departmentID:int}"
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Data.Data
+@inject IDirectoryService DirectoryService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+
+<PageTitle>Department</PageTitle>
+
+@if (Department == null)
+{
+    <p>Loading department...</p>
+}
+else
+{
+    <div class="flex flex-col h-screen bg-dark-subtle no-scrollbar">
+        <section>
+            <HeaderCard Info="DepartmentInfo" />
+            <div class="shadow-sm drop-shadow-sm bg-accent">
+                <SearchBar />
+            </div>
+        </section>
+
+        <section class="flex-grow overflow-y-scroll no-scrollbar">
+            <TelerikListView Data="@Department.Employees" EnableLoaderContainer="true" Class="px-3 py-1 my-1 bg-transparent" Pageable="false" >
+                <Template Context="emp">
+                    <NavLink href="@($"/corporate/{departmentID}/{emp.Id}")" class="text-white underline hover:text-blue-100 text-decoration-none text-uppercase">
+                        <div class="menu-item py-3 px-4 my-2 rounded-3 text-accent tracking-wider" style="font-size: small; font-weight: bold; letter-spacing: 2px;">
+                            <div>
+                                @emp.FirstName @emp.LastName @if (emp.IsManager == true)
+                                {
+                                    <span class="text-accent ps-1">★</span>
+                                }
+                            </div>
+                            <div>@emp.JobTitle</div>
+                        </div>
+                    </NavLink>
+                </Template>
+            </TelerikListView>
+        </section>
+
+        <section class="align-items-end z-3">
+            <FooterNav Items="FooterNavItems" />
+        </section>
+    </div>
+}
+
+<style>
+    .menu-item {
+    background-color: #ff6358;
+    }
+
+    .menu-item:hover {
+    transition: transform 0.2s ease-in, opacity 0.2s ease-in;
+    transform: translateY(0) scale(0.95);
+    background-color: #FA574B;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+    display: none;
+    }
+
+    .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int departmentID { get; set; }
+
+    private Department? Department;
+    private HeaderCard.HeadInfoCardModel DepartmentInfo = new();
+
+
+    private List<FooterNav.FooterItem> FooterNavItems = new()
+    {
+        new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
+        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+        new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        
+        if (Department is not null)
+        {
+            DepartmentInfo = new HeaderCard.HeadInfoCardModel
+                {
+                    Title = Department.DeptName!,
+                    // Subtitle1 = "Dept. Phone",
+                    // Phone = Department.DeptPhone,
+                    // Subtitle2 = "Dept. Email",
+                    // Email = Department.DeptEmail,
+                    Subtitle3 = "Dept. Manager",
+                    Phone2 = Department.DeptManager!
+                };
+        }
+
+
+        Department = await DirectoryService.GetDepartmentWithEmployeesAsync(departmentID);
+    }
+}

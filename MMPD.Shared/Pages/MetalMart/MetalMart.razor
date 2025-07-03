@@ -1,0 +1,109 @@
+﻿@* // Pages/MetalMart.razor *@
+@page "/metalmart"
+@using MMPD.Data.Models
+@using MMPD.Data.Data
+@using MMPD.Data.Context
+@using MMPD.Shared.Components
+@inject IDirectoryService DirectoryService
+@using Telerik.Blazor
+@inject NavigationManager NavigationManager
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Shared.Layout
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Metal Mart</PageTitle>
+
+@if (Locations == null || Locations.Count == 0)
+{
+    <p>Loading Metal Marts...</p>
+}
+else
+{
+    <div class="flex flex-col h-screen">
+        <section>
+            <HeadTitleCard Entries="AreaManagers" />
+        </section>
+
+        @* <div class="divide divide-none divide-y-2 py-0"></div> *@
+
+        <section class="flex-grow bg-neutral pb-0 pt-0 overflow-y-scroll no-scrollbar">
+            <div class="shadow-sm drop-shadow-sm bg-accent">
+                <SearchBar />
+            </div>
+
+            <TelerikListView Data="@Locations" Class="ps-2 py-1 pe-2 border-4 border-transparent overflow-y-auto no-scrollbar">
+                <Template Context="loc">
+                    <NavLink class="text-white underline hover:text-blue-100 text-decoration-none text-uppercase"
+                             href="@($"/metalmart/{loc.Id}")">
+                        <div class="bg-primary text-white-content rounded shadow-md my-2 py-3 px-4 hover:shadow-lg hover:scale-105 transition">
+                            <div class="text-xxl-start font-semibold uppercase tracking-wide">@loc.LocName - @loc.City, @loc.State </div>
+                        
+                        @* @if (!string.IsNullOrWhiteSpace(loc.PhoneNumber))
+                        {
+                            <div class="text-sm">Phone: @loc.PhoneNumber</div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(loc.LocEmail))
+                        {
+                            <div class="text-sm">Email: @loc.LocEmail</div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(loc.StoreManager))
+                        {
+                            <div class="text-sm">Manager: @loc.StoreManager</div>
+                        } *@
+                        @* <div class="mt-2">
+                            
+                                View Details
+                            
+                        </div> *@
+                        </div>
+                    </NavLink>
+                </Template>
+            </TelerikListView>
+        </section>
+
+        <div class="divide divide-none divide-y-2 py-0"></div>
+        <section class="box-border pb-3 mt-0">
+            <FooterNav Items="footerItems" />
+        </section>
+    </div>
+}
+
+@code {
+    // private MMPD.Data.Models.Location? Data;
+    private List<Location> Locations = new();
+
+    private Dictionary<string, string> AreaManagers => new()
+    {
+        { "Northeast", "David Boyte" },
+        { "Central", "John Baker" },
+        { "South Central", "Beau Brown" },
+        { "New Mexico", "Cliff Loveless" },
+        { "Southeast", "Michael Northen" },
+        { "Southwest", "Shaun Steinemann" }
+    };
+
+    // private List<FooterNav> FooterNav = new()
+    // {
+    //     new(CustomIcons.Home, "Home", "/"),
+    //     new(CustomIcons.Corporate, "Corporate", "/corporate"),
+    //     new(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+    //     new(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+    // };
+
+    private List<FooterNav.FooterItem> footerItems = new()
+{
+    new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
+    new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+    new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+    new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+    
+};
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Locations = await DirectoryService.GetLocationsByTypeAsync("metal mart");
+
+    }
+}
