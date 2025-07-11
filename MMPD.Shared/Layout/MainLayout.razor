@@ -10,7 +10,7 @@
 <TelerikRootComponent>
     <div class="main-layout-container">
         
-        <header class="main-layout-header k-rounded-none k-bg-primary">
+        <header class="main-layout-header" >
             <HeaderCard Info="LayoutState.HeaderInfo" />
         </header>
 
@@ -45,7 +45,7 @@
 }
 
 <style>
-    .main-layout-container {
+    /* .main-layout-container {
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -53,11 +53,32 @@
 
     .main-layout-header,
     .main-layout-footer {
-        flex-shrink: 0; /* Prevents header/footer from shrinking */
+        flex-shrink: 0; 
     }
 
     .main-layout-content {
-        flex-grow: 1; /* Makes the main content fill all available space */
-        overflow-y: auto; /* Adds a scrollbar ONLY to this area if needed */
+        flex-grow: 1; 
+        overflow-y: auto; 
+    } */
+    .main-layout-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    .main-layout-header {
+        flex-shrink: 0; /* Prevents header from shrinking */
+        
+    }
+
+    .main-layout-footer {
+        flex-shrink: 0; /* Prevents footer from shrinking */
+        
+    }
+
+    .main-layout-content {
+        flex: 1; /* Takes up remaining space between header and footer */
+        overflow-y: hidden; /* Adds scrollbar if content overflows */
+        min-height: 0; /* Ensures flexbox works properly */
     }
 </style>

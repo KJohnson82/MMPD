@@ -10,6 +10,7 @@
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
 @using Telerik.SvgIcons
+@inject MMPD.Shared.Services.LayoutState LayoutState
 
 <PageTitle>Department</PageTitle>
 
@@ -19,57 +20,30 @@
 }
 else
 {
-    <div class="flex flex-col h-screen bg-dark-subtle no-scrollbar">
-        <section>
-            <HeaderCard Info="DepartmentInfo" />
-            <div class="shadow-sm drop-shadow-sm bg-accent">
-                <SearchBar />
-            </div>
-        </section>
+    <div class="button-page-container">
 
-        <section class="flex-grow overflow-y-scroll no-scrollbar">
-            <TelerikListView Data="@Department.Employees" EnableLoaderContainer="true" Class="px-3 py-1 my-1 bg-transparent" Pageable="false" >
+        <div class="scrollable-wrapper">
+            <TelerikListView Data="@Department.Employees" EnableLoaderContainer="true" Class="button-list-container" Pageable="false" >
                 <Template Context="emp">
-                    <NavLink href="@($"/corporate/{departmentID}/{emp.Id}")" class="text-white underline hover:text-blue-100 text-decoration-none text-uppercase">
-                        <div class="menu-item py-3 px-4 my-2 rounded-3 text-accent tracking-wider" style="font-size: small; font-weight: bold; letter-spacing: 2px;">
-                            <div>
+                    <NavLink href="@($"/corporate/{departmentID}/{emp.Id}")" class=" text-decoration-none k-text-uppercase">
+                        <div class="menu-item py-3 px-4 my-2 rounded-3 k-text-white tracking-wider k-font-size-lg" style="font-size: medium; font-weight: bold; letter-spacing: 2px;">
+                            <div class="k-align-items-center">
                                 @emp.FirstName @emp.LastName @if (emp.IsManager == true)
                                 {
-                                    <span class="text-accent ps-1">★</span>
+                                    <span class="k-color-warning ps-1 " ><TelerikSvgIcon Icon="@SvgIcon.Star" Size="@ThemeConstants.SvgIcon.Size.Large" /></span>
                                 }
                             </div>
-                            <div>@emp.JobTitle</div>
+                            <div class="k-color-dark k-font-bold k-font-size-sm ">@emp.JobTitle</div>
                         </div>
                     </NavLink>
                 </Template>
             </TelerikListView>
-        </section>
-
-        <section class="align-items-end z-3">
-            <FooterNav Items="FooterNavItems" />
-        </section>
+        </div>
     </div>
 }
 
 <style>
-    .menu-item {
-    background-color: #ff6358;
-    }
-
-    .menu-item:hover {
-    transition: transform 0.2s ease-in, opacity 0.2s ease-in;
-    transform: translateY(0) scale(0.95);
-    background-color: #FA574B;
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-    display: none;
-    }
-
-    .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    }
+    
 </style>
 
 @code {
@@ -77,35 +51,48 @@ else
     public int departmentID { get; set; }
 
     private Department? Department;
-    private HeaderCard.HeadInfoCardModel DepartmentInfo = new();
-
+    private HeaderCardModels.HeadInfoCardModel? DepartmentInfo;
 
     private List<FooterNav.FooterItem> FooterNavItems = new()
     {
         new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
-        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+        // new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
         new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
-        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter"),
+        new FooterNav.FooterItem(CustomIcons.Plant, "Plant", "/plant")
     };
 
     protected override async Task OnParametersSetAsync()
     {
-        
-        if (Department is not null)
+        // Load the department first
+        Department = await DirectoryService.GetDepartmentWithEmployeesAsync(departmentID);
+
+        if (Department?.Employees != null)
         {
-            DepartmentInfo = new HeaderCard.HeadInfoCardModel
-                {
-                    Title = Department.DeptName!,
-                    // Subtitle1 = "Dept. Phone",
-                    // Phone = Department.DeptPhone,
-                    // Subtitle2 = "Dept. Email",
-                    // Email = Department.DeptEmail,
-                    Subtitle3 = "Dept. Manager",
-                    Phone2 = Department.DeptManager!
-                };
+            Department.Employees = Department.Employees
+                .OrderBy(e => e.FirstName)
+                .ThenBy(e => e.LastName)
+                .ToList();
         }
 
+        // Use the ForDepartment static method from HeadInfoCardModel
+        if (Department != null)
+        {
+            DepartmentInfo = HeaderCardModels.ForDepartment(
+                title: Department.DeptName ?? "Department",
+                phone: Department.DeptPhone,
+                email: Department.DeptEmail,
+                manager: Department.DeptManager
+            );
+        }
+    }
 
-        Department = await DirectoryService.GetDepartmentWithEmployeesAsync(departmentID);
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && DepartmentInfo != null)
+        {
+            LayoutState.SetHeader(DepartmentInfo);
+            LayoutState.SetFooter(FooterNavItems);
+        }
     }
 }

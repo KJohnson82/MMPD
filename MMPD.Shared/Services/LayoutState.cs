@@ -32,12 +32,12 @@ namespace MMPD.Shared.Services
 
     public class LayoutState
     {
-        public HeadInfoCardModel? HeaderInfo { get; private set; }
+        public HeaderCardModels.HeadInfoCardModel? HeaderInfo { get; private set; }
         public List<FooterItem> FooterItems { get; private set; } = new();
 
         public event Action? OnChange;
 
-        public void SetHeader(HeadInfoCardModel? info)
+        public void SetHeader(HeaderCardModels.HeadInfoCardModel? info)
         {
             // Only notify listeners if the data has actually changed.
             if (HeaderInfo != info)

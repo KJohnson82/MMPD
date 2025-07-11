@@ -78,7 +78,7 @@ else
 
     private Department? Department;
     private Employee? Employee;
-    private HeaderCard.HeadInfoCardModel EmployeeInfoCard = new();
+    private HeaderCardModels.HeadInfoCardModel EmployeeInfoCard = new();
 
     private List<FooterNav.FooterItem> FooterNav = new()
     {
@@ -102,7 +102,7 @@ else
 
         if (Employee is not null)
         {
-            EmployeeInfoCard = new HeaderCard.HeadInfoCardModel
+            EmployeeInfoCard = new HeaderCardModels.HeadInfoCardModel
             {
                 Title = Department?.DeptName ?? ""
             };

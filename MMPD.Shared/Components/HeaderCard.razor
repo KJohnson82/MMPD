@@ -3,14 +3,16 @@
 @using MMPD.Data.Models
 @using MMPD.Data.Context
 @using MMPD.Data.Data
+@using MMPD.Shared.Components
+
 @inject NavigationManager NavManager
 
-@if (Info is not null)
+@* @if (Info is not null)
 {
-    <TelerikCard  Class="k-w-full k-bg-primary text-primary-content border-opacity-20  k-h-auto  k-py-3 k-px-1 k-rounded-t-none k-rounded-b-none"
+    <TelerikCard  Class="k-w-full k-bg-primary text-primary-content border-opacity-20 k-h-auto  k-py-3 k-px-1 k-rounded-t-none k-rounded-b-none"
                  Orientation="CardOrientation.Vertical"   >
 
-        <CardHeader Class="k-text-center k-text-white page-name k-text-uppercase k-font-semibold k-white-space-nowrap k-border-0 ">
+        <CardHeader Class="k-text-center k-text-white page-name k-text-uppercase k-font-semibold k-white-space-nowrap k-border-0 k-p-3" >
             @Info.Title
         </CardHeader>
 
@@ -55,17 +57,188 @@
                         <div><strong>Area:</strong> @Info.AreaManager</div>
                     </div>
                 }
+                @if (!string.IsNullOrWhiteSpace(Info.TManager1) || !string.IsNullOrWhiteSpace(Info.TManager2) ||
+                            !string.IsNullOrWhiteSpace(Info.TManager3) || !string.IsNullOrWhiteSpace(Info.TManager4) ||
+                            !string.IsNullOrWhiteSpace(Info.TManager5) || !string.IsNullOrWhiteSpace(Info.TManager6))
+                {
+                    <div class="k-col-span-12">
+                        <!-- Header Row -->
+                        <div class="territory-table">
+                            <div class="territory-header">
+                                <div class="territory-header-cell">TERRITORY</div>
+                                <div class="territory-header-cell">MANAGER</div>
+                            </div>
+
+                            <!-- Data Rows -->
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager1))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle1</div>
+                                    <div class="territory-cell">@Info.TManager1</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager2))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle2</div>
+                                    <div class="territory-cell">@Info.TManager2</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager3))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle3</div>
+                                    <div class="territory-cell">@Info.TManager3</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager4))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle4</div>
+                                    <div class="territory-cell">@Info.TManager4</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager5))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle5</div>
+                                    <div class="territory-cell">@Info.TManager5</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager6))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle6</div>
+                                    <div class="territory-cell">@Info.TManager6</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </CardBody>
     </TelerikCard>
-    <div class="k-elevation-2 ">
+    <div class="k-elevation-2 search-section">
+        <SearchBar ShowBackButton="!IsHomePage" />
+    </div>
+} *@
+
+@if (Info is not null)
+{
+    <div class="header-container">
+        <!-- Title Section -->
+        <div class="header-title">
+            @Info.Title
+        </div>
+
+        <!-- Content Section -->
+        <div class="header-content">
+            <div class="header-info-grid">
+                @if (!string.IsNullOrWhiteSpace(Info.Address))
+                {
+                    <div class="info-item address-item">
+                        <span>@Info.Address @Info.City @Info.State @Info.Zip</span>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.Subtitle1) && !string.IsNullOrWhiteSpace(Info.Phone))
+                {
+                    <div class="info-item">
+                        <strong>@Info.Subtitle1:</strong> @Info.Phone
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.Subtitle2) && !string.IsNullOrWhiteSpace(Info.Email))
+                {
+                    <div class="info-item">
+                        <strong>@Info.Subtitle2:</strong> @Info.Email
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.Subtitle3) && !string.IsNullOrWhiteSpace(Info.Phone2))
+                {
+                    <div class="info-item">
+                        <strong>@Info.Subtitle3:</strong> @Info.Phone2
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.Phone3))
+                {
+                    <div class="info-item">
+                        <strong>Phone 3:</strong> @Info.Phone3
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.StoreManager) || !string.IsNullOrWhiteSpace(Info.AreaManager))
+                {
+                    <div class="info-item">
+                        <div><strong>Manager:</strong> @Info.StoreManager</div>
+                        <div><strong>Area:</strong> @Info.AreaManager</div>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Info.TManager1) || !string.IsNullOrWhiteSpace(Info.TManager2) ||
+                            !string.IsNullOrWhiteSpace(Info.TManager3) || !string.IsNullOrWhiteSpace(Info.TManager4) ||
+                            !string.IsNullOrWhiteSpace(Info.TManager5) || !string.IsNullOrWhiteSpace(Info.TManager6))
+                {
+                    <div class="info-item territory-item">
+                        <div class="territory-table">
+                            <div class="territory-header">
+                                <div class="territory-header-cell">TERRITORY</div>
+                                <div class="territory-header-cell">MANAGER</div>
+                            </div>
+                            <!-- Your existing territory rows here -->
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager1))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle1</div>
+                                    <div class="territory-cell">@Info.TManager1</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager2))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle2</div>
+                                    <div class="territory-cell">@Info.TManager2</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager3))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle3</div>
+                                    <div class="territory-cell">@Info.TManager3</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager4))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle4</div>
+                                    <div class="territory-cell">@Info.TManager4</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager5))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle5</div>
+                                    <div class="territory-cell">@Info.TManager5</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Info.TManager6))
+                            {
+                                <div class="territory-row">
+                                    <div class="territory-cell">@Info.Subtitle6</div>
+                                    <div class="territory-cell">@Info.TManager6</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="search-section">
         <SearchBar ShowBackButton="!IsHomePage" />
     </div>
 }
 
 @code {
     [Parameter]
-    public HeadInfoCardModel? Info { get; set; }
+    public HeaderCardModels.HeadInfoCardModel? Info { get; set; }
 
     private bool IsHomePage
     {
@@ -79,110 +252,203 @@
         }
     }
 
-    public class HeadInfoCardModel
-    {
-    public string Title { get; set; } = "";
-    public string Subtitle1 { get; set; } = "";
-    public string Subtitle2 { get; set; } = "";
-    public string Subtitle3 { get; set; } = "";
-    public string Subtitle4 { get; set; } = "";
-    public string Subtitle5 { get; set; } = "";
-    public string Subtitle6 { get; set; } = "";
-    public string Subtitle7 { get; set; } = "";
-    public string Subtitle8 { get; set; } = "";
-    public string Phone { get; set; } = "";
-    public string Phone2 { get; set; } = "";
-    public string Phone3 { get; set; } = "";
-    public string Email { get; set; } = "";
-    public string Address { get; set; } = "";
-    public string City { get; set; } = "";
-    public string State { get; set; } = "";
-    public string Zip { get; set; } = "";
-    public string StoreManager { get; set; } = "";
-    public string AreaManager { get; set; } = "";
-    public string TManager1 { get; set; } = "";
-    public string TManager2 { get; set; } = "";
-    public string TManager3 { get; set; } = "";
-    public string TManager4 { get; set; } = "";
-    public string TManager5 { get; set; } = "";
-    public string TManager6 { get; set; } = "";
-    public string TManager7 { get; set; } = "";
-    public string TManager8 { get; set; } = "";
-    public string ShowBackButton { get; set; } = "true";
-    
     }
 
-    public static HeadInfoCardModel Corporate()
-    {
-        return new HeadInfoCardModel
-            {
-                Title = "Employee Directory",
-                Address = "1500 Hamilton Rd",
-                City = "Bossier City",
-                State = "LA",
-                Zip = "71111",
-                Subtitle1 = "Corp. Phone",
-                Phone = "(888) 245-3696",
-                Subtitle2 = "Corp. Email",
-                Email = "info@mcelroymetal.com",
-                Subtitle3 = "IT Help Desk",
-                Phone2 = "(866) 634-5111",
-                
-            };
+    <style>
+    .header-container {
+        background-color: var(--kendo-color-primary);
+        color: white;
+        width: 100%;
+        height: 240px;
+        display: flex;
+        flex-direction: column;
     }
 
-    public static HeadInfoCardModel ForDepartment(string title, string? phone, string? email, string? manager)
-    {
-        return new HeadInfoCardModel
-            {
-                Title = title,
-                Subtitle1 = "Dept. Phone",
-                Phone = phone ?? "",
-                Subtitle2 = "Dept. Email",
-                Email = email ?? "",
-                Subtitle3 = "Dept. Manager",
-                Phone2 = manager ?? ""
-            };
+    .header-title {
+        background-color: var(--kendo-color-primary);
+        color: white;
+        font-size: clamp(20px, 7vw, 48px);
+        font-weight: bold;
+        text-transform: uppercase;
+        text-shadow: 3px 2px 1px #FDADA8;
+        text-align: center;
+        padding: 8px 10px; /* Minimal padding */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 50px; /* Just enough space for the title */
     }
 
-        public static HeadInfoCardModel Plant(string title, string? tmanager1, string? tmanager2, string? tmanager3, string? tmanager4, string? tmanager5, string? tmanager6)
-        {
-            return new HeadInfoCardModel
-                {
-                    Title = title,
-                    Subtitle1 = " ",
-                    TManager1 = tmanager1 ?? "",
-                    Subtitle2 = " ",
-                    TManager2 = tmanager2 ?? "",
-                    Subtitle3 = " ",
-                    TManager3 = tmanager3 ?? "",
-                    Subtitle4 = " ",
-                    TManager4 = tmanager4 ?? "",
-                    Subtitle5 = " ",
-                    TManager5 = tmanager5 ?? "",
-                    Subtitle6 = " ",
-                    TManager6 = tmanager6 ?? "",
-                };
+    .header-content {
+        flex: 1;
+        padding: 10px 20px;
+        overflow: hidden;
+    }
+
+    .header-info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .info-item {
+        color: white;
+    }
+
+    .address-item {
+        text-align: center;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .territory-item {
+        margin-top: 10px;
+    }
+
+    .search-section {
+        flex-shrink: 0;
+    }
+
+    /* Keep your existing territory table CSS */
+    .territory-table {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .territory-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-bottom: 2px solid white;
+    }
+
+    .territory-header-cell {
+        padding: 8px 12px;
+        font-weight: bold;
+        text-align: center;
+        color: white;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .territory-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+        .territory-row:last-child {
+            border-bottom: none;
         }
 
-
-
+    .territory-cell {
+        padding: 6px 12px;
+        color: white;
+        font-size: 13px;
     }
 
-<style>
+        .territory-cell:first-child {
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+        }
+    </style>
+
+@* <style>
     .page-name {
-        font-size: 8vw;
+        font-size: clamp(20px, 7vw, 48px); /* Responsive font size with limits */
         text-align: center;
-        text-transform: full-width, uppercase;
+        text-transform: uppercase;
         text-shadow: 3px 2px 1px #FDADA8;
-        color: var(--k-color-on-primary);
+        color: var(--kendo-color-on-primary);
         flex-grow: 1;
         display: flex;
         justify-content: center;
-        align-items: center
+        align-items: center;
+        line-height: 1.1; /* Tighter line height */
+        padding: 0 10px; /* Small horizontal padding to prevent edge cutoff */
+        white-space: nowrap; /* Prevent text wrapping */
+        overflow: hidden; /* Hide overflow */
+        text-overflow: ellipsis; /* Add ... if text is too long */
+
     }
 
+    .k-card {
+        background-color: var(--kendo-color-primary);
+        color: var(--kendo-color-on-primary);
+        border-radius: 0;
+        height: 240px !important; /* Fixed height for consistency */
+        display: flex;
+        flex-direction: column;
+    }
 
-</style>
+        .k-card .k-card-header {
+            flex-shrink: 0;
+            height: 30px; /* Fixed height for title */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 10px;
+            margin:  0;
+        }
+
+        .k-card .k-card-body {
+            flex: 1;
+            overflow: hidden; /* Prevents content from expanding */
+            display: flex;
+            align-items: center;
+            padding-top: 5px;
+        }
+
+    .search-section {
+        /* height: 60px; */ /* Fixed height for search bar */
+        flex-shrink: 0;
+    }
+
+    .territory-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .territory-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-bottom: 2px solid white;
+    }
+
+    .territory-header-cell {
+        padding: 8px 12px;
+        font-weight: bold;
+        text-align: center;
+        color: white;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .territory-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+        .territory-row:last-child {
+            border-bottom: none;
+        }
+
+    .territory-cell {
+        padding: 6px 12px;
+        color: white;
+        font-size: 13px;
+    }
+
+        .territory-cell:first-child {
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+        }
+
+
+</style> *@
 
 

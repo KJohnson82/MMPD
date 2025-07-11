@@ -10,6 +10,7 @@
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
 @using Telerik.SvgIcons
+@inject MMPD.Shared.Services.LayoutState LayoutState
 
 <PageTitle>Employee</PageTitle>
 
@@ -19,55 +20,157 @@
 }
 else
 {
-    <div class="flex flex-col h-screen">
-        <section>
-            <HeaderCard Info="EmployeeInfo" />
-        </section>
+    <div class="button-page-container k-border-top-2 k-border-bottom-8 k-border-x-0 k-border-solid k-border-dark-subtle ">
+        
 
-        <section class="flex-grow bg-background justify-center overflow-y-scroll no-scrollbar">
-            <section class="shadow-sm drop-shadow-sm">
-                <BackButton />
-            </section>
+        <div class="scrollable-wrapper">
 
-            <TelerikCard Class="mx-4 my-4 bg-primary text-white">
-                <CardHeader>
-                    <h2 class="text-2xl font-semibold">@Employee.FirstName @Employee.LastName</h2>
-                    <p class="text-sm text-accent">@Employee.JobTitle</p>
-                </CardHeader>
+            <div class="employee-name-section k-mb-2">
+                <h1 class="employee-name">
+                    @Employee.FirstName.ToUpper() @Employee.LastName.ToUpper()
+                    @if (Employee.IsManager == true)
+                    {
+                        <span class="manager-star">★</span>
+                    }
+                </h1>
+                <p class="job-title">@Employee.JobTitle</p>
+            </div>
 
-                <CardBody Class="bg-secondary text-sm space-y-1">
-                    @if (!string.IsNullOrWhiteSpace(Employee.Email))
-                    {
-                        <div><strong>Email:</strong> @Employee.Email</div>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Employee.PhoneNumber))
-                    {
-                        <div><strong>Phone:</strong> @Employee.PhoneNumber</div>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Employee.Extension))
-                    {
-                        <div><strong>Extension:</strong> @Employee.Extension</div>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Employee.CellNumber))
-                    {
-                        <div><strong>Cell:</strong> @Employee.CellNumber</div>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Employee.NetworkId))
-                    {
-                        <div><strong>Network ID:</strong> @Employee.NetworkId</div>
-                    }
-                </CardBody>
+            <!-- Contact Details Section -->
+            <div class="contact-details">
+                @if (!string.IsNullOrWhiteSpace(Employee.PhoneNumber) || !string.IsNullOrWhiteSpace(Employee.Extension))
+                {
+                    <div class="contact-section">
+                        <div class="contact-label">PHONE</div>
+                        <div class="contact-value">
+                            @Employee.PhoneNumber
+                            @if (!string.IsNullOrWhiteSpace(Employee.Extension))
+                            {
+                                <span> | EXT: @Employee.Extension</span>
+                            }
+                        </div>
+                    </div>
+                }
 
-                <CardActions Class="bg-primary">
-                    <TelerikButton OnClick="@GoBack" Icon="SvgIcon.ArrowLeft">Back</TelerikButton>
-                </CardActions>
-            </TelerikCard>
-        </section>
+                @if (!string.IsNullOrWhiteSpace(Employee.Email))
+                {
+                    <div class="contact-section">
+                        <div class="contact-label">EMAIL</div>
+                        <div class="contact-value">@Employee.Email</div>
+                    </div>
+                }
 
-        <section class="box-border mt-0 pb-3">
-            <FooterNav Items="FooterNavItems" />
-        </section>
+                @if (!string.IsNullOrWhiteSpace(Employee.CellNumber))
+                {
+                    <div class="contact-section">
+                        <div class="contact-label">CELL</div>
+                        <div class="contact-value">@Employee.CellNumber</div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Employee.NetworkId))
+                {
+                    <div class="contact-section">
+                        <div class="contact-label">NETWORK ID</div>
+                        <div class="contact-value">@Employee.NetworkId</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        
     </div>
+
+    <style>
+        .employee-name-section {
+            /* background-color: var(--kendo-color-dark); */
+            padding: 20px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--kendo-color-primary);
+        }
+
+        .employee-name {
+            color: var(--kendo-color-on-dark);
+            font-size: xx-large;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+            letter-spacing: 2px;
+        }
+
+        .manager-star {
+            color: #ffd700;
+            margin-left: 8px;
+        }
+
+        .job-title {
+            color: #ff6358;
+            font-size: large;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-details {
+            background-color: var(--kendo-color-dark);
+            padding: 2px;
+        }
+
+        .contact-section {
+            /* border-bottom: 1px solid #444; */
+            padding: 10px 0;
+            padding-left: 40px;
+        }
+
+        .contact-section:last-child {
+                border-bottom: none;
+            }
+
+        .contact-label {
+            /* color: #ff6358; */
+            color: var(--kendo-color-warning); 
+            font-size: medium;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid var(--kendo-color-tertiary-on-surface);
+        }
+
+        .contact-value {
+            color: white;
+            font-size: medium;
+            font-weight: normal;
+            letter-spacing: 0.5px;
+        }
+
+        .button-page-container {
+            height: calc(100% - 60px);
+            display: flex;
+            flex-direction: column;
+            background-color: var(--kendo-color-dark);
+            padding-bottom: 10px;
+            padding-top: 10px;
+            
+        }
+
+        .scrollable-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            
+        }
+
+        .scrollable-wrapper::-webkit-scrollbar {
+              display: none;
+        }
+
+        .footer {
+            border-top: 6px solid red;
+        }
+
+    </style>
 }
 
 @code {
@@ -76,45 +179,60 @@ else
 
     private Department? Department;
     private Employee? Employee;
-    private HeaderCard.HeadInfoCardModel EmployeeInfo = new();
+    private HeaderCardModels.HeadInfoCardModel? EmployeeInfo;
 
     private List<FooterNav.FooterItem> FooterNavItems = new()
     {
         new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
-        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+        // new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
         new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
-        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter"),
+        new FooterNav.FooterItem(CustomIcons.Plant, "Plant", "/plant")
     };
 
     protected override async Task OnParametersSetAsync()
     {
-        // var data = await DirectoryService.GetDataRootAsync();
-
-        // Department = data?.Loctype["corporate"].Locations
-        //     .SelectMany(l => l.Departments)
-        //     .FirstOrDefault(d => d.Id == departmentID);
-
-        // Employee = Department?.Employees.FirstOrDefault(e => e.Id == employeeID);
+        
 
         Employee = await DirectoryService.GetEmployeeByIdAsync(employeeID);
 
-        if (Employee is not null)
+        // if (Employee is not null)
+        // {
+        //     EmployeeInfo = new HeaderCardModels.HeadInfoCardModel
+        //     {
+        //         Title = Employee.FirstName + " " + Employee.LastName ?? "Employee",
+        //         Subtitle1 = "Job Title",
+        //         Phone = Employee?.JobTitle!
+        //         Subtitle2 = "Email",
+        //         Email = Employee.Email,
+        //         Subtitle3 = "Phone",
+        //         Phone2 = Employee.PhoneNumber
+        //     };
+        // }
+
+        if (Employee != null)
         {
-            EmployeeInfo = new HeaderCard.HeadInfoCardModel
-            {
-                Title = Department?.DeptName ?? "Employee",
-                Subtitle1 = "Job Title",
-                Phone = Employee?.JobTitle!
-                // Subtitle2 = "Email",
-                // Email = Employee.Email,
-                // Subtitle3 = "Phone",
-                // Phone2 = Employee.PhoneNumber
-            };
+            EmployeeInfo = HeaderCardModels.Employee(
+                title: Employee.EmpDepartment?.DeptName ?? Employee.FirstName + " " + Employee.LastName
+                // phone: Department.DeptPhone,
+                // email: Department.DeptEmail,
+                // manager: Department.DeptManager
+            );
         }
     }
 
-    private async void GoBack()
+    protected override void OnAfterRender(bool firstRender)
     {
-        await JSRuntime.InvokeVoidAsync("goBack");
+        if (firstRender && EmployeeInfo != null)
+        {
+            // Set the header and footer using LayoutState
+            LayoutState.SetHeader(EmployeeInfo);
+            LayoutState.SetFooter(FooterNavItems);
+        }
     }
+
+    // private async void GoBack()
+    // {
+    //     await JSRuntime.InvokeVoidAsync("goBack");
+    // }
 }
