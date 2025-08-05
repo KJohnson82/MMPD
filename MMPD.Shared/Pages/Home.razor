@@ -25,11 +25,11 @@ else
 
 
 <div class="button-page-container">
-    <TelerikListView Data="@MenuItems" EnableLoaderContainer="true" Class="button-list-container mt-0 py-0">
+    <TelerikListView Data="@MenuItems" EnableLoaderContainer="true" Class="button-list-container ">
         <Template Context="item">
             <NavLink href="@item.Path" class="button-link ">
                 <div class="menu-item k-elevation-1 hover:shadow-lg">
-                    <span class="k-text-uppercase k-text-white" style="font-size: xx-large; font-weight: bold;">
+                    <span class="k-text-uppercase k-text-white" style="font-size: x-large; font-weight: bold;">
                         <TelerikSvgIcon Icon="@item.Icon" Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge" Class="k-pb-2 k-pl-2 k-me-2" />
                         @item.Label
                     </span>
@@ -48,6 +48,7 @@ else
     flex-direction: column;
     background-color: var(--kendo-color-secondary-emphasis);
     padding-top: 5px;
+    border-bottom-width: 4px;
 }
 
 .button-list-container {
@@ -56,6 +57,7 @@ else
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    
     
 }
 
@@ -73,7 +75,7 @@ else
     padding: 32px 25px;
     flex: 1;
     display: flex;
-    margin: 3px 0;
+    margin: 3px 8px;
     box-sizing: unset;
     /* align-items: center;
     justify-content: space-evenly; */
@@ -81,7 +83,7 @@ else
 
 .menu-item:hover {
     transition: transform 0.2s ease-in, opacity 0.2s ease-in;
-    transform: translateY(-0.25rem) scale(1.05);
+    transform: translateY(0) scale(0.95);
     background-color: #FA574B;
 }
 

@@ -1,4 +1,6 @@
-﻿@page "/plant/{locationID:int}"
+﻿
+
+@page "/plant/{locationID:int}"
 @using MMPD.Data.Models
 @using MMPD.Data.Data
 @using MMPD.Data.Context
@@ -7,6 +9,7 @@
 @using Telerik.Blazor.Components
 @inject NavigationManager NavigationManager
 @using MMPD.Shared.Layout
+@inject MMPD.Shared.Services.LayoutState LayoutState
 
 <PageTitle>Plant Location</PageTitle>
 
@@ -16,76 +19,107 @@
 }
 else
 {
+    <div class="button-page-container">
+        <div class="scrollable-wrapper">
 
-    <div class="flex flex-col h-screen">
-        <section>
-
-        </section>
-
-        <div class="divide divide-none divide-y-2 py-0"></div>
-
-        <section class="flex-grow bg-neutral pb-0 pt-0 overflow-y-scroll no-scrollbar">
-            <TelerikListView Data="@Departments" Class="ps-2 py-1 pe-2 border-4 border-transparent overflow-y-auto no-scrollbar">
+            <TelerikListView Data="@Departments" EnableLoaderContainer="true" Class="button-list-container">
                 <Template Context="dept">
-                    <div class="bg-primary text-white-content rounded-md shadow-md my-2 py-2 px-4 hover:shadow-lg hover:scale-105 transition">
-                        <div class="text-xl font-semibold uppercase tracking-wide">@dept.DeptName</div>
-                        @if (!string.IsNullOrWhiteSpace(dept.DeptManager))
-                        {
-                            <div class="text-sm mt-1">Manager: @dept.DeptManager</div>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(dept.DeptPhone))
-                        {
-                            <div class="text-sm">Phone: @dept.DeptPhone</div>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(dept.DeptEmail))
-                        {
-                            <div class="text-sm">Email: @dept.DeptEmail</div>
-                        }
-
-                        <div class="mt-2">
-                            <NavLink class="text-white underline hover:text-blue-100"
-                            href="@($"/plant/{locationID}/{dept.Id}")">
-                                View Details
-                            </NavLink>
-
+                    <NavLink href="@($"/plant/{locationID}/{dept.Id}")" class="link-body-emphasis k-text-no-underline k-shadow">
+                        <div class="menu-item k-d-flex k-flex-row k-text-uppercase k-font-size-lg k-font-semibold k-text-white k-justify-content-start k-align-items-center k-pl-10 k-bg-gradient k-py-6 hover:k-elevation-2">
+                            @dept.DeptName
                         </div>
-                    </div>
+                    </NavLink>
                 </Template>
             </TelerikListView>
-
-        </section>
-
-        <div class="divide divide-none divide-y-2 py-0"></div>
-        <section class="box-border pb-3 mt-0">
-            <FooterNav Items="FooterNav" />
-        </section>
+        </div>
     </div>
-
 }
 
+<style>
+    .menu-item {
+        background-color: #ff6358;
+        margin: 8px 10px;
+        border-radius: 0.75rem;
+        flex: 1;
+        letter-spacing: 0.5px;
+    }
+
+        .menu-item:hover {
+            transition: transform 0.2s ease-in, opacity 0.2s ease-in;
+            transform: translateY(0) scale(0.95);
+            background-color: #FA574B;
+        }
+
+    .button-page-container {
+        height: calc(100% - 60px);
+        display: flex;
+        flex-direction: column;
+        background-color: var(--kendo-color-secondary-emphasis);
+    }
+
+    .button-list-container {
+        background-color: transparent !important;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin: 5px 0;
+        padding: 5px 0;
+        overflow-y: auto;
+    }
+
+    .scrollable-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        margin: 5px 0;
+        padding: 5px 0;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+        .scrollable-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+</style>
+
 @code {
-    [Parameter] public int locationID { get; set; }
+    [Parameter]
+    public int locationID { get; set; }
+
     private Location? Plant;
     private List<Department> Departments = new();
-    private List<Location> Locations = new();
+    private HeaderCardModels.HeadInfoCardModel? PlantLocationInfo;
 
-    private List<FooterNav.FooterItem> FooterNav = new()
+    private List<FooterNav.FooterItem> FooterNavItems = new()
     {
-        new(CustomIcons.Home, "Home", "/"),
-        new(CustomIcons.Corporate, "Corporate", "/corporate"),
-        new(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
-        new(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+        new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
+        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+        new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
     };
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        // var data = await DirectoryService.GetDataRootAsync();
-        // if (data?.Loctype.TryGetValue("plant", out var plantGroup) == true)
-        // {
-        //     Plant = plantGroup.Locations.FirstOrDefault(l => l.Id == locationID);
-        //     Departments = Plant?.Departments ?? new List<Department>();
-        // }
+        // Load the specific plant location with its departments
+        Plant = await DirectoryService.GetLocationWithDepartmentsAsync(locationID);
 
-        Locations = await DirectoryService.GetLocationsByTypeAsync("plant");
+        if (Plant != null)
+        {
+            // Sort departments alphabetically
+            Departments = Plant.Departments.OrderBy(d => d.DeptName).ToList();
+
+            // Create header info for the plant location
+            PlantLocationInfo = HeaderCardModels.Employee(
+                title: Plant.LocName ?? "Plant Location"
+            );
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && PlantLocationInfo != null)
+        {
+            LayoutState.SetHeader(PlantLocationInfo);
+            LayoutState.SetFooter(FooterNavItems);
+        }
     }
 }

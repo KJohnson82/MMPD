@@ -10,69 +10,124 @@
 @using Telerik.SvgIcons
 @using MMPD.Shared.Layout
 @inject IJSRuntime JSRuntime
+@inject MMPD.Shared.Services.LayoutState LayoutState
 
 <PageTitle>Service Center</PageTitle>
 
 @if (Locations == null || Locations.Count == 0)
 {
-    <p>Loading service centers...</p>
+    <p>Loading Service Centers...</p>
 }
 else
 {
-    <div class="flex flex-col h-screen">
-        <section>
-            <HeadTitleCard Entries="AreaManagers" />
-        </section>
+    <div class="button-page-container">
+        <div class="scrollable-wrapper">
 
-        <section class="flex-grow bg-neutral pb-0 pt-0 overflow-y-scroll no-scrollbar">
-            <div class="shadow-sm drop-shadow-sm bg-accent">
-                <SearchBar />
-            </div>
-
-            <TelerikListView Data="@Locations" Class="ps-2 py-1 pe-2 border-4 border-transparent overflow-y-auto no-scrollbar">
+            <TelerikListView Data="@Locations" Class="button-list-container">
                 <Template Context="loc">
-                    <NavLink class="text-white underline hover:text-blue-100 text-decoration-none text-uppercase"
+                    <NavLink class="text-decoration-none text-uppercase"
                              href="@($"/servicecenter/{loc.Id}")">
-                        <div class="bg-primary text-white-content rounded shadow-md my-2 py-3 px-4 hover:shadow-lg hover:scale-105 transition">
-                            <div class="text-xxl-start font-semibold uppercase tracking-wide">
-                                @loc.LocName - @loc.City, @loc.State
-                            </div>
+                        <div class="menu-item py-3 px-4 my-2 rounded-3 k-text-white tracking-wider k-font-size-lg" style="font-size: medium; font-weight: bold; letter-spacing: 2px;">
+                            <div class="k-align-items-center">@loc.LocName</div>
+                            <div class="k-color-dark k-font-bold k-font-size-sm">@loc.City, @loc.State</div>
                         </div>
                     </NavLink>
                 </Template>
             </TelerikListView>
-        </section>
-
-        <div class="divide divide-none divide-y-2 py-0"></div>
-        <section class="box-border pb-3 mt-0">
-            <FooterNav Items="footerItems" />
-        </section>
+        </div>
     </div>
 }
 
+<style>
+    .menu-item {
+        background-color: #ff6358;
+        margin: 8px 10px;
+        border-radius: 0.75rem;
+        flex: 1;
+        letter-spacing: 0.5px;
+    }
+
+        .menu-item:hover {
+            transition: transform 0.2s ease-in, opacity 0.2s ease-in;
+            transform: translateY(0) scale(0.95);
+            background-color: #FA574B;
+        }
+
+    .button-page-container {
+        height: calc(100% - 60px);
+        display: flex;
+        flex-direction: column;
+        background-color: var(--kendo-color-secondary-emphasis);
+    }
+
+    .button-list-container {
+        background-color: transparent !important;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin: 5px 0;
+        padding: 5px 0;
+        overflow-y: auto;
+    }
+
+    .scrollable-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        margin: 5px 0;
+        padding: 5px 0;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+        .scrollable-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+</style>
+
 @code {
+    private HeaderCardModels.HeadInfoCardModel? StoreInfo;
     private List<Location> Locations = new();
 
-    private Dictionary<string, string> AreaManagers => new()
+    private List<FooterNav.FooterItem> FooterNavItems = new()
     {
-        { "Northeast", "David Boyte" },
-        { "Central", "John Baker" },
-        { "South Central", "Beau Brown" },
-        { "New Mexico", "Cliff Loveless" },
-        { "Southeast", "Michael Northen" },
-        { "Southwest", "Shaun Steinemann" }
-    };
-
-    private List<FooterNav.FooterItem> footerItems = new()
-    {
-        new(CustomIcons.Home, "Home", "/"),
-        new(CustomIcons.Corporate, "Corporate", "/corporate"),
-        new(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
-        new(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+        new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
+        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+        new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+        // new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter"), // Current page
+        new FooterNav.FooterItem(CustomIcons.Plant, "Plant", "/plant")
     };
 
     protected override async Task OnInitializedAsync()
     {
         Locations = await DirectoryService.GetLocationsByTypeAsync("service center");
+
+        // Sort locations alphabetically by name
+        Locations = Locations.OrderBy(l => l.LocName).ToList();
+
+        // Create the header info for Service Center using the Store method
+        StoreInfo = HeaderCardModels.Store(
+            title: "Service Center",
+            subtitle1: "Northeast",
+            tmanager1: "David Boyte",
+            subtitle2: "Central",
+            tmanager2: "John Baker",
+            subtitle3: "South Central",
+            tmanager3: "Beau Brown",
+            subtitle4: "New Mexico",
+            tmanager4: "Cliff Loveless",
+            subtitle5: "Southeast",
+            tmanager5: "Michael Northen",
+            subtitle6: "Southwest",
+            tmanager6: "Shaun Steinemann"
+        );
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && StoreInfo != null)
+        {
+            LayoutState.SetHeader(StoreInfo);
+            LayoutState.SetFooter(FooterNavItems);
+        }
     }
 }

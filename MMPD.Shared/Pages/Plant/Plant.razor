@@ -1,4 +1,4 @@
-﻿@page "/plant"
+﻿@* @page "/plant"
 @using MMPD.Data.Models
 @using MMPD.Data.Context
 @using MMPD.Data.Data
@@ -20,7 +20,7 @@ else
 {
     <div class="k-d-grid k-grid-cols-1 k-grid-auto-rows-auto k-bg-dark-subtle">
         <section class="k-row-start-1 k-row-end-3 k-mb--1">
-            @* <HeaderCard Info="HeaderCard.HeadInfoCardModel.Plant()" /> *@
+
             <div class="k-elevation-2">
                 <SearchBar />
             </div>
@@ -32,19 +32,7 @@ else
                     <NavLink href="@($"/plant/{plant.Id}")" class="link-body-emphasis k-text-no-underline k-shadow">
                         <div class="menu-item k-d-flex k-flex-col k-text-uppercase k-text-white k-justify-content-start k-align-items-start k-px-6 k-bg-gradient k-py-4 hover:k-elevation-2">
                             <div class="text-xl font-semibold">@plant.LocName</div>
-                            @* <div class="text-sm">@plant.Address, @plant.City, @plant.State @plant.Zipcode</div>
-                            @if (!string.IsNullOrWhiteSpace(plant.PhoneNumber))
-                            {
-                                <div class="text-sm">Phone: @plant.PhoneNumber</div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(plant.LocEmail))
-                            {
-                                <div class="text-sm">Email: @plant.LocEmail</div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(plant.StoreManager))
-                            {
-                                <div class="text-sm">Manager: @plant.StoreManager</div>
-                            } *@
+                           
                         </div>
                     </NavLink>
                 </Template>
@@ -94,5 +82,136 @@ else
     protected override async Task OnInitializedAsync()
     {
         Plants = await DirectoryService.GetLocationsByTypeAsync("plant");
+    }
+}
+ *@
+
+@page "/plant"
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Data.Data
+@inject IDirectoryService DirectoryService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Shared.Components
+@using MMPD.Shared.Layout
+@inject MMPD.Shared.Services.LayoutState LayoutState
+
+<PageTitle>Plants</PageTitle>
+
+@if (Plants == null || Plants.Count == 0)
+{
+    <p>Loading plant data...</p>
+}
+else
+{
+    <div class="button-page-container">
+        <div class="scrollable-wrapper">
+
+            <TelerikListView Data="@Plants" EnableLoaderContainer="true" Class="button-list-container">
+                <Template Context="plant">
+                    <NavLink href="@($"/plant/{plant.Id}")" class="link-body-emphasis k-text-no-underline k-shadow">
+                        <div class="menu-item k-d-flex k-flex-row k-text-uppercase k-font-size-lg k-font-semibold k-text-white k-justify-content-start k-align-items-center k-pl-10 k-bg-gradient k-py-6 hover:k-elevation-2">
+                            @plant.LocName
+                        </div>
+                    </NavLink>
+                </Template>
+            </TelerikListView>
+        </div>
+    </div>
+}
+
+<style>
+    .menu-item {
+        background-color: #ff6358;
+        margin: 8px 10px;
+        border-radius: 0.75rem;
+        flex: 1;
+        letter-spacing: 0.5px;
+    }
+
+        .menu-item:hover {
+            transition: transform 0.2s ease-in, opacity 0.2s ease-in;
+            transform: translateY(0) scale(0.95);
+            background-color: #FA574B;
+        }
+
+    .button-page-container {
+        height: calc(100% - 60px);
+        display: flex;
+        flex-direction: column;
+        background-color: var(--kendo-color-secondary-emphasis);
+    }
+
+    .button-list-container {
+        background-color: transparent !important;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin: 5px 0;
+        padding: 5px 0;
+        overflow-y: auto;
+    }
+
+    .scrollable-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        margin: 5px 0;
+        padding: 5px 0;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+        .scrollable-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+</style>
+
+@code {
+    private List<Location>? Plants = new();
+    private HeaderCardModels.HeadInfoCardModel? PlantInfo;
+
+    private List<FooterNav.FooterItem> FooterNavItems = new()
+    {
+        new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
+        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+        new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Plants = await DirectoryService.GetLocationsByTypeAsync("plant");
+
+        // Sort plants alphabetically
+        Plants = Plants.OrderBy(p => p.LocName).ToList();
+
+        // Create the header info for Plants - you can customize the managers as needed
+        PlantInfo = HeaderCardModels.Plant(
+            title: "Plants",
+        subtitle1: "Plant 1",   
+        tmanager1: "Plant Manager 1",
+        subtitle2: "Plant 2",
+        tmanager2: "Plant Manager 2",
+        subtitle3: "Plant 3",
+        tmanager3: "Plant Manager 3",
+        subtitle4: "Plant 4",
+        tmanager4: "Plant Manager 4",
+        subtitle5: "Plant 5",
+        tmanager5: "Plant Manager 5",
+        subtitle6: "Plant 6",
+        tmanager6: "Plant Manager 6"
+        );
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && PlantInfo != null)
+        {
+            LayoutState.SetHeader(PlantInfo);
+            LayoutState.SetFooter(FooterNavItems);
+        }
     }
 }

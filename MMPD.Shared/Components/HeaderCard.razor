@@ -7,121 +7,7 @@
 
 @inject NavigationManager NavManager
 
-@* @if (Info is not null)
-{
-    <TelerikCard  Class="k-w-full k-bg-primary text-primary-content border-opacity-20 k-h-auto  k-py-3 k-px-1 k-rounded-t-none k-rounded-b-none"
-                 Orientation="CardOrientation.Vertical"   >
 
-        <CardHeader Class="k-text-center k-text-white page-name k-text-uppercase k-font-semibold k-white-space-nowrap k-border-0 k-p-3" >
-            @Info.Title
-        </CardHeader>
-
-        <CardBody Class="k-pl-5 k-bg-transparent">
-            <div class="k-grid-auto-rows-auto k-d-grid k-grid-cols-12 k-w-full k-font-size-md k-text-white">
-                @if (!string.IsNullOrWhiteSpace(Info.Address))
-                {
-                    <div class="k-col-span-12 k-text-center">
-                        <span class="k-text-center k-font-size-lg k-py-1">
-                            @Info.Address @Info.City @Info.State @Info.Zip
-                        </span>
-                    </div>
-                }
-                @if (!string.IsNullOrWhiteSpace(Info.Subtitle1) && !string.IsNullOrWhiteSpace(Info.Phone))
-                {
-                    <div class="k-col-span-12">
-                        <strong>@Info.Subtitle1:</strong> @Info.Phone
-                    </div>
-                }
-                @if (!string.IsNullOrWhiteSpace(Info.Subtitle2) && !string.IsNullOrWhiteSpace(Info.Email))
-                {
-                    <div class="k-col-span-12">
-                        <strong>@Info.Subtitle2:</strong> @Info.Email
-                    </div>
-                }
-                @if (!string.IsNullOrWhiteSpace(Info.Subtitle3) && !string.IsNullOrWhiteSpace(Info.Phone2))
-                {
-                    <div class="k-col-span-12">
-                        <strong>@Info.Subtitle3:</strong> @Info.Phone2
-                    </div>
-                }
-                @if (!string.IsNullOrWhiteSpace(Info.Phone3))
-                {
-                    <div class="k-col-span-12">
-                        <strong>Phone 3:</strong> @Info.Phone3
-                    </div>
-                }
-                @if (!string.IsNullOrWhiteSpace(Info.StoreManager) || !string.IsNullOrWhiteSpace(Info.AreaManager))
-                {
-                    <div class="k-col-span-12">
-                        <div><strong>Manager:</strong> @Info.StoreManager</div>
-                        <div><strong>Area:</strong> @Info.AreaManager</div>
-                    </div>
-                }
-                @if (!string.IsNullOrWhiteSpace(Info.TManager1) || !string.IsNullOrWhiteSpace(Info.TManager2) ||
-                            !string.IsNullOrWhiteSpace(Info.TManager3) || !string.IsNullOrWhiteSpace(Info.TManager4) ||
-                            !string.IsNullOrWhiteSpace(Info.TManager5) || !string.IsNullOrWhiteSpace(Info.TManager6))
-                {
-                    <div class="k-col-span-12">
-                        <!-- Header Row -->
-                        <div class="territory-table">
-                            <div class="territory-header">
-                                <div class="territory-header-cell">TERRITORY</div>
-                                <div class="territory-header-cell">MANAGER</div>
-                            </div>
-
-                            <!-- Data Rows -->
-                            @if (!string.IsNullOrWhiteSpace(Info.TManager1))
-                            {
-                                <div class="territory-row">
-                                    <div class="territory-cell">@Info.Subtitle1</div>
-                                    <div class="territory-cell">@Info.TManager1</div>
-                                </div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(Info.TManager2))
-                            {
-                                <div class="territory-row">
-                                    <div class="territory-cell">@Info.Subtitle2</div>
-                                    <div class="territory-cell">@Info.TManager2</div>
-                                </div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(Info.TManager3))
-                            {
-                                <div class="territory-row">
-                                    <div class="territory-cell">@Info.Subtitle3</div>
-                                    <div class="territory-cell">@Info.TManager3</div>
-                                </div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(Info.TManager4))
-                            {
-                                <div class="territory-row">
-                                    <div class="territory-cell">@Info.Subtitle4</div>
-                                    <div class="territory-cell">@Info.TManager4</div>
-                                </div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(Info.TManager5))
-                            {
-                                <div class="territory-row">
-                                    <div class="territory-cell">@Info.Subtitle5</div>
-                                    <div class="territory-cell">@Info.TManager5</div>
-                                </div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(Info.TManager6))
-                            {
-                                <div class="territory-row">
-                                    <div class="territory-cell">@Info.Subtitle6</div>
-                                    <div class="territory-cell">@Info.TManager6</div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
-        </CardBody>
-    </TelerikCard>
-    <div class="k-elevation-2 search-section">
-        <SearchBar ShowBackButton="!IsHomePage" />
-    </div>
-} *@
 
 @if (Info is not null)
 {
@@ -259,7 +145,7 @@
         background-color: var(--kendo-color-primary);
         color: white;
         width: 100%;
-        height: 240px;
+        height: 250px;
         display: flex;
         flex-direction: column;
     }
@@ -267,29 +153,42 @@
     .header-title {
         background-color: var(--kendo-color-primary);
         color: white;
-        font-size: clamp(20px, 7vw, 48px);
+        /* font-size: clamp(18px, 8vw, 48px); */
+        font-size: clamp(16px, 4.5rem, 38px); /* Using rem units instead of vw */
+        overflow: hidden;
         font-weight: bold;
         text-transform: uppercase;
-        text-shadow: 3px 2px 1px #FDADA8;
+        /* text-shadow: 3px 2px 1px #FDADA8; */
         text-align: center;
-        padding: 8px 10px; /* Minimal padding */
+        padding: 4px 2px; /* Minimal padding */
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 50px; /* Just enough space for the title */
+        /* min-height: 50px; */ /* Just enough space for the title */
+        line-height: 1;
+        /* ADDED: Handle text wrapping better */
+        word-break: break-word;
+        hyphens: auto;
+        /* ADDED: Ensure minimum height for wrapped text */
+        min-height: 60px;
     }
+
+
 
     .header-content {
         flex: 1;
-        padding: 10px 20px;
+        /* padding: 6px 0; */
         overflow: hidden;
+        /* line-height: 0.5; */
+        padding: 6px 1px;
     }
 
     .header-info-grid {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        font-size: 14px;
+        /* gap: 8px; */
+        gap: 6px;
+        /* font-size: 14px; */
     }
 
     .info-item {
@@ -297,13 +196,13 @@
     }
 
     .address-item {
-        text-align: center;
-        font-size: 16px;
+        /* text-align: center; */
+        font-size: 15px;
         margin-bottom: 5px;
     }
 
     .territory-item {
-        margin-top: 10px;
+        /* margin-top: 10px; */
     }
 
     .search-section {
@@ -343,112 +242,269 @@
         }
 
     .territory-cell {
-        padding: 6px 12px;
+        /* padding: 6px 12px; */
+        padding: 5px 8px;
         color: white;
-        font-size: 13px;
+        font-size: 12px;
+        line-height: 1.2;
     }
 
         .territory-cell:first-child {
             border-right: 1px solid rgba(255, 255, 255, 0.3);
             font-weight: 500;
         }
+
+    /* ADDED: Responsive adjustments for smaller screens */
+    
+
+    .header-info-grid {
+        gap: 4px;
+        font-size: 13px;
+    }
+
+    .territory-header-cell,
+    .territory-cell {
+        padding: 4px 6px;
+        font-size: 11px;
+    }
+
+    }
     </style>
 
-@* <style>
-    .page-name {
-        font-size: clamp(20px, 7vw, 48px); /* Responsive font size with limits */
-        text-align: center;
-        text-transform: uppercase;
-        text-shadow: 3px 2px 1px #FDADA8;
-        color: var(--kendo-color-on-primary);
-        flex-grow: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        line-height: 1.1; /* Tighter line height */
-        padding: 0 10px; /* Small horizontal padding to prevent edge cutoff */
-        white-space: nowrap; /* Prevent text wrapping */
-        overflow: hidden; /* Hide overflow */
-        text-overflow: ellipsis; /* Add ... if text is too long */
+@* @using Telerik.Blazor.Components
+@using Telerik.Blazor
+@using MMPD.Data.Models
+@using MMPD.Data.Context
+@using MMPD.Data.Data
+@using MMPD.Shared.Components
 
-    }
+@inject NavigationManager NavManager
 
-    .k-card {
-        background-color: var(--kendo-color-primary);
-        color: var(--kendo-color-on-primary);
-        border-radius: 0;
-        height: 240px !important; /* Fixed height for consistency */
-        display: flex;
-        flex-direction: column;
-    }
+@if (Info is not null)
+{
+    <div class="header-container">
+        <!-- Title Section -->
+        <div class="header-title">
+            @Info.Title
+        </div>
 
-        .k-card .k-card-header {
-            flex-shrink: 0;
-            height: 30px; /* Fixed height for title */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 5px 10px;
-            margin:  0;
+        <!-- Address -->
+        @if (!string.IsNullOrWhiteSpace(Info.Address))
+        {
+            <div class="header-address">
+                @Info.Address @Info.City @Info.State @Info.Zip
+            </div>
         }
 
-        .k-card .k-card-body {
-            flex: 1;
-            overflow: hidden; /* Prevents content from expanding */
-            display: flex;
-            align-items: center;
-            padding-top: 5px;
+        <!-- Contact Information - Simple List -->
+        <div class="contact-info">
+            @if (!string.IsNullOrWhiteSpace(Info.Subtitle1) && !string.IsNullOrWhiteSpace(Info.Phone))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle1:</strong> @Info.Phone
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.Subtitle2) && !string.IsNullOrWhiteSpace(Info.Email))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle2:</strong> @Info.Email
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.Subtitle3) && !string.IsNullOrWhiteSpace(Info.Phone2))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle3:</strong> @Info.Phone2
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.Phone3))
+            {
+                <div class="contact-item">
+                    <strong>Phone 3:</strong> @Info.Phone3
+                </div>
+            }
+
+            <!-- Manager Information -->
+            @if (!string.IsNullOrWhiteSpace(Info.StoreManager))
+            {
+                <div class="contact-item">
+                    <strong>Manager:</strong> @Info.StoreManager
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.AreaManager))
+            {
+                <div class="contact-item">
+                    <strong>Area Manager:</strong> @Info.AreaManager
+                </div>
+            }
+
+            <!-- Territory Managers - Simplified -->
+            @if (!string.IsNullOrWhiteSpace(Info.TManager1))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle1 Manager:</strong> @Info.TManager1
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.TManager2))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle2 Manager:</strong> @Info.TManager2
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.TManager3))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle3 Manager:</strong> @Info.TManager3
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.TManager4))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle4 Manager:</strong> @Info.TManager4
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.TManager5))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle5 Manager:</strong> @Info.TManager5
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Info.TManager6))
+            {
+                <div class="contact-item">
+                    <strong>@Info.Subtitle6 Manager:</strong> @Info.TManager6
+                </div>
+            }
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <SearchBar ShowBackButton="!IsHomePage" />
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public HeaderCardModels.HeadInfoCardModel? Info { get; set; }
+
+    private bool IsHomePage
+    {
+        get
+        {
+            var relativePath = NavManager.ToBaseRelativePath(NavManager.Uri);
+            return relativePath == "" || relativePath.Equals("home", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+}
+
+<style>
+    .header-container {
+        background-color: #FF6B6B; /* Coral/salmon color like your app */
+        color: white;
+        width: 100%;
+        padding: 24px 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 200px;
+    }
+
+    .header-title {
+        color: white;
+        font-size: clamp(24px, 4vw, 42px);
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        line-height: 1.1;
+    }
+
+    .header-address {
+        color: white;
+        font-size: clamp(16px, 2.5vw, 20px);
+        margin-bottom: 8px;
+        font-weight: normal;
+    }
+
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 16px;
+    }
+
+    .contact-item {
+        color: white;
+        font-size: clamp(14px, 2vw, 18px);
+        line-height: 1.4;
+        font-weight: normal;
+    }
+
+        .contact-item strong {
+            font-weight: 600;
         }
 
     .search-section {
-        /* height: 60px; */ /* Fixed height for search bar */
-        flex-shrink: 0;
+        margin-top: auto;
+        padding-top: 12px;
     }
 
-    .territory-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-
-    .territory-header {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        background-color: rgba(255, 255, 255, 0.2);
-        border-bottom: 2px solid white;
-    }
-
-    .territory-header-cell {
-        padding: 8px 12px;
-        font-weight: bold;
-        text-align: center;
-        color: white;
-        font-size: 14px;
-        letter-spacing: 1px;
-    }
-
-    .territory-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-        .territory-row:last-child {
-            border-bottom: none;
+        /* Make search bar match the design */
+        .search-section :deep(.search-container) {
+            background: transparent;
         }
 
-    .territory-cell {
-        padding: 6px 12px;
-        color: white;
+        .search-section :deep(input) {
+            background: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .search-section :deep(.search-button) {
+            background-color: #E55555;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            padding: 12px 16px;
+            margin-left: 8px;
+        }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-container
+
+    {
+        padding: 20px 16px;
+        gap: 6px;
+    }
+
+    .header-title {
+        font-size: clamp(20px, 6vw, 32px);
+        margin-bottom: 8px;
+    }
+
+    .header-address {
+        font-size: clamp(14px, 4vw, 18px);
+    }
+
+    .contact-item {
+        font-size: clamp(13px, 3vw, 16px);
+    }
+
+    }
+
+    @media (max-width: 480px) {
+        .contact-item
+
+    {
         font-size: 13px;
+        line-height: 1.3;
     }
 
-        .territory-cell:first-child {
-            border-right: 1px solid rgba(255, 255, 255, 0.3);
-            font-weight: 500;
-        }
-
-
+    }
 </style> *@
 
 

@@ -27,7 +27,7 @@ else
 
             <div class="employee-name-section k-mb-2">
                 <h1 class="employee-name">
-                    @Employee.FirstName.ToUpper() @Employee.LastName.ToUpper()
+                    @Employee.FirstName?.ToUpper() @Employee.LastName?.ToUpper()
                     @if (Employee.IsManager == true)
                     {
                         <span class="manager-star">★</span>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metal Mart Location #01</title>
+</head>
+<body>
+    <div class="location-screen">
+        <div class="header">METAL MART #01</div>
+
+        <div class="section">
+            <div class="two-column">
+                <div class="column">
+                    <div class="section-header">STORE</div>
+                    <div class="section-content">201</div>
+                </div>
+                <div class="divider"></div>
+                <div class="column">
+                    <div class="section-header">HOURS</div>
+                    <div class="section-content">M-F 8-5</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">ADDRESS</div>
+            <div class="section-content address-text">
+                17801 I-35 .<br>
+                Buda, TX 78610
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="two-column">
+                <div class="column">
+                    <div class="section-header">PHONE</div>
+                    <div class="section-content">512-295-2076</div>
+                </div>
+                <div class="divider"></div>
+                <div class="column">
+                    <div class="section-header">FAX</div>
+                    <div class="section-content">512-295-3888</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">EMAIL</div>
+            <div class="section-content">metalmart01@mcelroymetal.com</div>
+        </div>
+    </div>
+</body>
+</html>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #2a2a2a;
+        font-family: Arial, sans-serif;
+        color: white;
+        min-height: 100vh;
+    }
+
+    .location-screen {
+        background-color: #2a2a2a;
+        color: white;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 30px 25px;
+        position: relative;
+        min-height: 100vh;
+    }
+
+    .header {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 30px;
+        letter-spacing: 1px;
+        padding: 10px 0;
+    }
+
+    .section {
+        position: relative;
+        margin-bottom: 25px;
+    }
+
+        .section:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #4a9eff;
+        }
+
+    .section-header {
+        color: #d4af37;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        text-decoration: underline;
+text-underline-offset: 2px;
+text-underline-position: under;
+    }
+
+    .section-content {
+        font-size: 16px;
+        line-height: 1.4;
+    }
+
+    .two-column {
+        display: flex;
+        align-items: center;
+    }
+
+    .column {
+        flex: 1;
+    }
+
+    .divider {
+        width: 2px;
+        height: 40px;
+        background-color: #4a9eff;
+        margin: 0 20px;
+    }
+
+    .column:first-child {
+        text-align: right;
+    }
+
+    .column:last-child {
+        text-align: left;
+    }
+
+    .column .section-header {
+        margin-bottom: 5px;
+    }
+
+    .address-text {
+        line-height: 1.3;
+    }
+</style>

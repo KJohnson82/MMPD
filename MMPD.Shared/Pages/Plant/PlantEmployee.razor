@@ -1,4 +1,4 @@
-﻿@page "/plant/{locationID:int}/{departmentID:int}/{employeeID:int}"
+﻿@* @page "/plant/{locationID:int}/{departmentID:int}/{employeeID:int}"
 @using MMPD.Data.Models
 @using MMPD.Data.Data
 @using MMPD.Data.Context
@@ -58,9 +58,7 @@ else
                         }
                     </div>
                 </CardBody>
-                @* <CardActions Class="bg-primary">
-                    <TelerikButton OnClick="@GoBack" Icon="SvgIcon.ArrowLeft">Back</TelerikButton>
-                </CardActions> *@
+                
             </TelerikCard>
         </section>
 
@@ -92,13 +90,7 @@ else
     {
 
         Employee = await DirectoryService.GetEmployeeByIdAsync(employeeID);
-        // var data = await DirectoryService.GetDataRootAsync();
-        // Department = data?.Loctype["plant"].Locations
-        //     .FirstOrDefault(l => l.Id == locationID)?.Departments
-        //     .FirstOrDefault(d => d.Id == departmentID);
-
-        // Employee = Department?.Employees
-        //     .FirstOrDefault(e => e.Id == employeeID);
+       
 
         if (Employee is not null)
         {
@@ -112,5 +104,213 @@ else
     private async void GoBack()
     {
         await JS.InvokeVoidAsync("goBack");
+    }
+}
+ *@
+
+@page "/plant/{locationID:int}/{departmentID:int}/{employeeID:int}"
+@using MMPD.Data.Models
+@using MMPD.Data.Data
+@using MMPD.Data.Context
+@inject IDirectoryService DirectoryService
+@using MMPD.Shared.Components
+@using Telerik.Blazor.Components
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@using MMPD.Shared.Layout
+@inject MMPD.Shared.Services.LayoutState LayoutState
+
+<PageTitle>Plant Employee</PageTitle>
+
+@if (Employee == null)
+{
+    <p>Loading employee...</p>
+}
+else
+{
+    <div class="button-page-container k-border-top-2 k-border-bottom-8 k-border-x-0 k-border-solid k-border-dark-subtle">
+        <div class="scrollable-wrapper">
+
+            <!-- Employee Name Section -->
+            <div class="employee-name-section k-mb-2">
+                <h1 class="employee-name">
+                    @Employee.FirstName.ToUpper() @Employee.LastName.ToUpper()
+                    @if (Employee.IsManager == true)
+                    {
+                        <span class="manager-star">★</span>
+                    }
+                </h1>
+                <p class="job-title">@Employee.JobTitle</p>
+            </div>
+
+            <!-- Contact Details Section -->
+            <div class="contact-details">
+                @if (!string.IsNullOrWhiteSpace(Employee.PhoneNumber) || !string.IsNullOrWhiteSpace(Employee.Extension))
+                {
+                    <div class="contact-section">
+                        <div class="contact-label">PHONE</div>
+                        <div class="contact-value">
+                            @Employee.PhoneNumber
+                            @if (!string.IsNullOrWhiteSpace(Employee.Extension))
+                            {
+                                <span> | EXT: @Employee.Extension</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Employee.Email))
+                {
+                    <div class="contact-section">
+                        <div class="contact-label">EMAIL</div>
+                        <div class="contact-value">@Employee.Email</div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Employee.CellNumber))
+                {
+                    <div class="contact-section">
+                        <div class="contact-label">CELL</div>
+                        <div class="contact-value">@Employee.CellNumber</div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Employee.NetworkId))
+                {
+                    <div class="contact-section">
+                        <div class="contact-label">NETWORK ID</div>
+                        <div class="contact-value">@Employee.NetworkId</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .employee-name-section {
+            padding: 20px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--kendo-color-primary);
+        }
+
+        .employee-name {
+            color: var(--kendo-color-on-dark);
+            font-size: xx-large;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+            letter-spacing: 2px;
+        }
+
+        .manager-star {
+            color: #ffd700;
+            margin-left: 8px;
+        }
+
+        .job-title {
+            color: #ff6358;
+            font-size: large;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-details {
+            background-color: var(--kendo-color-dark);
+            padding: 2px;
+        }
+
+        .contact-section {
+            padding: 10px 0;
+            padding-left: 40px;
+        }
+
+            .contact-section:last-child {
+                border-bottom: none;
+            }
+
+        .contact-label {
+            color: var(--kendo-color-warning);
+            font-size: medium;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid var(--kendo-color-tertiary-on-surface);
+        }
+
+        .contact-value {
+            color: white;
+            font-size: medium;
+            font-weight: normal;
+            letter-spacing: 0.5px;
+        }
+
+        .button-page-container {
+            height: calc(100% - 60px);
+            display: flex;
+            flex-direction: column;
+            background-color: var(--kendo-color-dark);
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+
+        .scrollable-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+            .scrollable-wrapper::-webkit-scrollbar {
+                display: none;
+            }
+    </style>
+}
+
+@code {
+    [Parameter]
+    public int locationID { get; set; }
+
+    [Parameter]
+    public int departmentID { get; set; }
+
+    [Parameter]
+    public int employeeID { get; set; }
+
+    private Department? Department;
+    private Employee? Employee;
+    private HeaderCardModels.HeadInfoCardModel? EmployeeInfo;
+
+    private List<FooterNav.FooterItem> FooterNavItems = new()
+    {
+        new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
+        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+        new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter")
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Employee = await DirectoryService.GetEmployeeByIdAsync(employeeID);
+
+        if (Employee != null)
+        {
+            // Get department info for the header
+            Department = await DirectoryService.GetDepartmentWithEmployeesAsync(departmentID);
+
+            EmployeeInfo = HeaderCardModels.Employee(
+                title: Department?.DeptName ?? Employee.EmpDepartment?.DeptName ?? "Plant Employee"
+            );
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && EmployeeInfo != null)
+        {
+            LayoutState.SetHeader(EmployeeInfo);
+            LayoutState.SetFooter(FooterNavItems);
+        }
     }
 }

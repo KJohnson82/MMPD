@@ -42,6 +42,7 @@
     display: flex;
     flex-direction: column;
     background-color: var(--kendo-color-secondary-emphasis);
+    border-bottom-width: 4px;
 }
 
 .button-list-container {
