@@ -1,7 +1,7 @@
 ﻿@page "/corporate/{departmentID:int}"
 @using MMPD.Data.Models
 @using MMPD.Data.Context
-@using MMPD.Data.Data
+@using MMPD.Data
 @inject IDirectoryService DirectoryService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
@@ -23,7 +23,7 @@ else
     <div class="button-page-container">
 
         <div class="scrollable-wrapper">
-            <TelerikListView Data="@Department.Employees" EnableLoaderContainer="true" Class="button-list-container" Pageable="false" >
+            <TelerikListView  Data="@Department.Employees" EnableLoaderContainer="true" Class="button-list-container" Pageable="false" >
                 <Template Context="emp">
                     <NavLink href="@($"/corporate/{departmentID}/{emp.Id}")" class=" text-decoration-none k-text-uppercase">
                         <div class="menu-item py-3 px-4 my-2 rounded-3 k-text-white tracking-wider k-font-size-lg" style="font-size: medium; font-weight: bold; letter-spacing: 2px;">

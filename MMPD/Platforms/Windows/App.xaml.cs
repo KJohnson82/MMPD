@@ -16,8 +16,21 @@ namespace MMPD.WinUI
         /// </summary>
         public App()
         {
+
             this.InitializeComponent();
+
         }
+
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        {
+            base.OnLaunched(args);
+
+
+            //var mauiWindow = Microsoft.Maui.Controls.Application.Current.Windows.FirstOrDefault();
+            //mauiWindow?.DisableMaximizeButton();
+        }
+
+
 
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
     }

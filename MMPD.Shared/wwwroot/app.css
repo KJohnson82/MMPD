@@ -96,3 +96,7 @@ h1:focus {
     .scrollable-wrapper::-webkit-scrollbar {
         display: none;
     }
+*, ::after, ::before {
+    box-sizing: unset;
+}
+  

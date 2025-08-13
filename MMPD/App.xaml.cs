@@ -1,13 +1,4 @@
-﻿using MMPD.Shared.Services;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Devices;
-using Microsoft.Maui.Storage;
-using MMPD;
-using MMPD.Services;
-
-
-
-namespace MMPD
+﻿namespace MMPD
 {
     public partial class App : Application
     {
@@ -27,12 +18,15 @@ namespace MMPD
                     Title = "McElroy Directory",
                     Background = Colors.Transparent,
                     ForegroundColor = Colors.Coral
+
                 }
+
             };
 
             // Load and apply saved window state
             var windowState = new SavedWindowState();
             windowState.ApplyToWindow(appWindow);
+
 
             // Save window state whenever it changes
             appWindow.SizeChanged += (_, _) =>
@@ -47,6 +41,9 @@ namespace MMPD
                 });
             };
 
+
+
+
             return appWindow;
         }
     }
@@ -59,8 +56,8 @@ namespace MMPD
         public double? Height { get; set; }
 
         // Default dimensions for first launch
-        private const double DefaultWidth = 400;
-        private const double DefaultHeight = 870;
+        private const double DefaultWidth = 373;
+        private const double DefaultHeight = 830;
         private const double DefaultMaxWidth = 425;
         private const double DefaultMaxHeight = 900;
         private const double DefaultMinWidth = 372;

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telerik.Windows.Documents.Model.Drawing.Charts;
-
-namespace MMPD.Shared.Layout
+﻿namespace MMPD.Shared.Layout
 {
     public class HeaderCardModels
     {

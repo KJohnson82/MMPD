@@ -1,0 +1,6 @@
+@MMPD.Api_HostAddress = http://localhost:5135
+
+GET {{MMPD.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

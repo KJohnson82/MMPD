@@ -1,13 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using MMPD.Shared.Components;
-using MMPD.Shared.Layout;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MMPD.Shared.Layout;
 using static MMPD.Shared.Components.FooterNav;
-using static MMPD.Shared.Components.HeaderCard;
 
 namespace MMPD.Shared.Services
 {
@@ -54,6 +46,6 @@ namespace MMPD.Shared.Services
         }
 
         private void NotifyStateChanged() => OnChange?.Invoke();
-}
+    }
 
 }

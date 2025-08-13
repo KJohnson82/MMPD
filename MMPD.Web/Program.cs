@@ -1,17 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using MMPD.Data.Context;
+using MMPD.Data.Data;
 using MMPD.Shared.Services;
 using MMPD.Web;
-using MMPD.Web.Components;
 using MMPD.Web.Services;
-using MMPD.Data.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-    //.AddInteractiveWebAssemblyComponents();
+//.AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddTelerikBlazor();
 
@@ -51,6 +50,6 @@ app.MapStaticAssets();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-    
+
 
 app.Run();

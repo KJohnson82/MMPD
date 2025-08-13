@@ -1,10 +1,21 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
+using MMPD.Data.Context;
 using MMPD.Services;
 using MMPD.Shared.Services;
-using MMPD.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using MMPD.Data.Data;
-using Microsoft.Maui.LifecycleEvents;
+
+//<<<<<<< TODO: Unmerged change from project 'MMPD (net9.0-windows10.0.19041.0)', Before:
+//=======
+//using Microsoft.Maui.LifecycleEvents;
+//>>>>>>> After
+
+#if WINDOWS
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
+using WinRT.Interop;
+using Microsoft.UI;
+#endif
 
 namespace MMPD
 {
@@ -22,8 +33,31 @@ namespace MMPD
 
             builder.ConfigureLifecycleEvents(events =>
             {
+#if WINDOWS
+                events.AddWindows(windowsLifecycleBuilder =>
+                {
+                    windowsLifecycleBuilder.OnWindowCreated(window =>
+                    {
+                        window.ExtendsContentIntoTitleBar = false;
 
+                        // Add a small delay to ensure window is fully created
+                        Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+                        {
+                            var handle = WindowNative.GetWindowHandle(window);
+                            var id = Win32Interop.GetWindowIdFromWindow(handle);
+                            var appWindow = AppWindow.GetFromWindowId(id);
+
+                            if (appWindow?.Presenter is OverlappedPresenter overlappedPresenter)
+                            {
+                                overlappedPresenter.IsMaximizable = false;
+                                //overlappedPresenter.IsResizable = true;
+                            }
+                        });
+                    });
+                });
+#endif
             });
+
 
             // Add device-specific services used by the MMPD.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
@@ -43,7 +77,7 @@ namespace MMPD
                 options.UseSqlite($"Data Source={dbPath}");
             });
 
-            
+
 
 
             builder.Services.AddScoped<IDirectoryService, DirectoryService>();

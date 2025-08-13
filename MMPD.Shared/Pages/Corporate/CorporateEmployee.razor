@@ -1,7 +1,7 @@
 ﻿@page "/corporate/{departmentID:int}/{employeeID:int}"
 @using MMPD.Data.Models
 @using MMPD.Data.Context
-@using MMPD.Data.Data
+@using MMPD.Data
 @inject IDirectoryService DirectoryService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
@@ -12,7 +12,7 @@
 @using Telerik.SvgIcons
 @inject MMPD.Shared.Services.LayoutState LayoutState
 
-<PageTitle>Employee</PageTitle>
+<PageTitle>Corporate Employee</PageTitle>
 
 @if (Employee == null)
 {
@@ -25,56 +25,58 @@ else
 
         <div class="scrollable-wrapper">
 
-            <div class="employee-name-section k-mb-2">
-                <h1 class="employee-name">
-                    @Employee.FirstName?.ToUpper() @Employee.LastName?.ToUpper()
-                    @if (Employee.IsManager == true)
+            <div class="employee-details">
+                <div class="employee-name-section k-mb-2">
+                    <h1 class="employee-name">
+                        @Employee.FirstName?.ToUpper() @Employee.LastName?.ToUpper()
+                        @if (Employee.IsManager == true)
+                        {
+                            <span class="manager-star">★</span>
+                        }
+                    </h1>
+                    <p class="job-title">@Employee.JobTitle</p>
+                </div>
+
+                <!-- Contact Details Section -->
+                <div class="contact-details">
+                    @if (!string.IsNullOrWhiteSpace(Employee.PhoneNumber) || !string.IsNullOrWhiteSpace(Employee.Extension))
                     {
-                        <span class="manager-star">★</span>
-                    }
-                </h1>
-                <p class="job-title">@Employee.JobTitle</p>
-            </div>
-
-            <!-- Contact Details Section -->
-            <div class="contact-details">
-                @if (!string.IsNullOrWhiteSpace(Employee.PhoneNumber) || !string.IsNullOrWhiteSpace(Employee.Extension))
-                {
-                    <div class="contact-section">
-                        <div class="contact-label">PHONE</div>
-                        <div class="contact-value">
-                            @Employee.PhoneNumber
-                            @if (!string.IsNullOrWhiteSpace(Employee.Extension))
-                            {
-                                <span> | EXT: @Employee.Extension</span>
-                            }
+                        <div class="contact-section section-left">
+                            <div class="left-divider">PHONE</div>
+                            <div class="contact-value">
+                                @Employee.PhoneNumber
+                                @if (!string.IsNullOrWhiteSpace(Employee.Extension))
+                                {
+                                    <span> | EXT: @Employee.Extension</span>
+                                }
+                            </div>
                         </div>
-                    </div>
-                }
+                    }
 
-                @if (!string.IsNullOrWhiteSpace(Employee.Email))
-                {
-                    <div class="contact-section">
-                        <div class="contact-label">EMAIL</div>
-                        <div class="contact-value">@Employee.Email</div>
-                    </div>
-                }
+                    @if (!string.IsNullOrWhiteSpace(Employee.Email))
+                    {
+                        <div class="contact-section section-right">
+                            <div class="right-divider">EMAIL</div>
+                            <div class="contact-value" style="text-align: end;">@Employee.Email</div>
+                        </div>
+                    }
 
-                @if (!string.IsNullOrWhiteSpace(Employee.CellNumber))
-                {
-                    <div class="contact-section">
-                        <div class="contact-label">CELL</div>
-                        <div class="contact-value">@Employee.CellNumber</div>
-                    </div>
-                }
+                    @if (!string.IsNullOrWhiteSpace(Employee.CellNumber))
+                    {
+                        <div class="contact-section section-left">
+                            <div class="left-divider">CELL</div>
+                            <div class="contact-value">@Employee.CellNumber</div>
+                        </div>
+                    }
 
-                @if (!string.IsNullOrWhiteSpace(Employee.NetworkId))
-                {
-                    <div class="contact-section">
-                        <div class="contact-label">NETWORK ID</div>
-                        <div class="contact-value">@Employee.NetworkId</div>
-                    </div>
-                }
+                    @if (!string.IsNullOrWhiteSpace(Employee.NetworkId))
+                    {
+                        <div class="contact-section section-right">
+                            <div class="right-divider">NETWORK ID</div>
+                            <div class="contact-value" style="text-align: end;">@Employee.NetworkId</div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
 
@@ -82,6 +84,11 @@ else
     </div>
 
     <style>
+
+        .employee-details {
+            background-color: var(--kendo-color-dark);
+            padding: 0;
+        }
         .employee-name-section {
             /* background-color: var(--kendo-color-dark); */
             padding: 20px 20px;
@@ -118,7 +125,9 @@ else
         .contact-section {
             /* border-bottom: 1px solid #444; */
             padding: 10px 0;
-            padding-left: 40px;
+            /* padding-left: 40px; */
+            position: relative;
+            /* margin-bottom: 15px; */
         }
 
         .contact-section:last-child {
@@ -138,8 +147,11 @@ else
 
         .contact-value {
             color: white;
-            font-size: medium;
-            font-weight: normal;
+            /* font-size: medium;
+            font-weight: normal; */
+            font-size: clamp(0.9rem, 2vw + 0.75rem, 1.25rem);
+            line-height: 1;
+            /* letter-spacing: 1.25px; */
             letter-spacing: 0.5px;
         }
 
@@ -170,6 +182,62 @@ else
             border-top: 6px solid red;
         }
 
+        .left-divider {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.125rem;
+            color: #d4af37;
+            font-weight: 600;
+            letter-spacing: 1.25px;
+        }
+
+            .left-divider::after {
+                content: '';
+                flex: 1;
+                border-top: 3px solid #4a9eff;
+                margin-left: 1rem;
+            }
+
+        .right-divider {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.125rem;
+            color: #d4af37;
+            font-weight: 600;
+            letter-spacing: 1.25px;
+        }
+
+            .right-divider::before {
+                content: '';
+                flex: 1;
+                border-top: 3px solid #4a9eff;
+                margin-right: 1rem;
+            }
+
+        .divider-vertical {
+            width: 2.5px;
+            height: 3rem;
+            background-color: #4a9eff;
+            margin: 0 20px;
+        }
+
+        .section {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .section-right {
+            padding-right: 2rem !important;
+        }
+
+        .section-left {
+            padding-left: 2rem !important;
+        }
+
     </style>
 }
 
@@ -196,19 +264,6 @@ else
 
         Employee = await DirectoryService.GetEmployeeByIdAsync(employeeID);
 
-        // if (Employee is not null)
-        // {
-        //     EmployeeInfo = new HeaderCardModels.HeadInfoCardModel
-        //     {
-        //         Title = Employee.FirstName + " " + Employee.LastName ?? "Employee",
-        //         Subtitle1 = "Job Title",
-        //         Phone = Employee?.JobTitle!
-        //         Subtitle2 = "Email",
-        //         Email = Employee.Email,
-        //         Subtitle3 = "Phone",
-        //         Phone2 = Employee.PhoneNumber
-        //     };
-        // }
 
         if (Employee != null)
         {
@@ -231,8 +286,5 @@ else
         }
     }
 
-    // private async void GoBack()
-    // {
-    //     await JSRuntime.InvokeVoidAsync("goBack");
-    // }
+
 }

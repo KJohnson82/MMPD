@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using MMPD.Shared.Services
 @using MMPD.Shared.Components
-@using MMPD.Data.Data
+@using MMPD.Data
 @using MMPD.Data.Models
 @inject IDirectoryService DirectoryService
 @using Telerik.Blazor
@@ -47,7 +47,7 @@ else
     display: flex;
     flex-direction: column;
     background-color: var(--kendo-color-secondary-emphasis);
-    padding-top: 5px;
+    /* padding-top: 5px; */
     border-bottom-width: 4px;
 }
 
@@ -90,6 +90,10 @@ else
 .k-listview {
     background-color: transparent;
 }
+
+    .k-listview-item {
+        padding: 4px 0;
+    }
 
 /* Keep your existing styles for body, no-scrollbar, etc. */
 

@@ -2,9 +2,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using MMPD.Data.Models;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Reflection.Emit;
 
 namespace MMPD.Data.Context
 {

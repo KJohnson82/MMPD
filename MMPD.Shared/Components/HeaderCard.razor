@@ -2,7 +2,7 @@
 @using Telerik.Blazor
 @using MMPD.Data.Models
 @using MMPD.Data.Context
-@using MMPD.Data.Data
+@using MMPD.Data
 @using MMPD.Shared.Components
 
 @inject NavigationManager NavManager
@@ -11,12 +11,12 @@
 
 @if (Info is not null)
 {
-    <div class="header-container">
+    <div class="header-container grid">
         <!-- Title Section -->
         <div class="header-title">
             @Info.Title
         </div>
-
+        <div class="divider"></div>
         <!-- Content Section -->
         <div class="header-content">
             <div class="header-info-grid">
@@ -167,7 +167,7 @@
         /* min-height: 50px; */ /* Just enough space for the title */
         line-height: 1;
         /* ADDED: Handle text wrapping better */
-        word-break: break-word;
+        /* word-break: break-word; */
         hyphens: auto;
         /* ADDED: Ensure minimum height for wrapped text */
         min-height: 60px;
@@ -268,7 +268,117 @@
         font-size: 11px;
     }
 
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        border: 3px solid transparent;
+        border-radius: 0.375rem;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-bottom: 0;
     }
+
+        .grid h2 {
+            text-align: center;
+            white-space: nowrap;
+            font-weight: 300;
+            text-transform: uppercase;
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+            padding-top: 0.75rem;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            padding-bottom: 0.25rem;
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.2);
+        }
+
+    .divider {
+        width: 100vw;
+        padding: 0;
+        margin: 0;
+        border-bottom: 2px solid rgba(226, 232, 240, 0.2);
+    }
+
+    .table {
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+        .table tbody {
+            margin-top: 2.5rem;
+        }
+
+        .table tr {
+            font-size: 0.875rem;
+            text-align: center;
+            vertical-align: middle;
+            padding-top: 0.375rem;
+            padding-bottom: 0.375rem;
+            border-bottom: 2px solid rgba(226, 232, 240, 0.2);
+        }
+
+        .table td {
+            padding-top: 0.5rem;
+            padding-bottom: 0.375rem;
+            text-align: center;
+            vertical-align: middle;
+            width: auto;
+        }
+
+        .table .address {
+            padding-right: 0;
+            padding-left: 2.5rem;
+            text-align: center;
+            vertical-align: middle;
+            width: auto;
+        }
+
+        .table .subtitle1 {
+            padding-right: 0;
+            padding-left: 2.5rem;
+            text-align: center;
+            vertical-align: middle;
+            width: 50%;
+            text-transform: uppercase;
+            border-right: 2px solid rgba(226, 232, 240, 0.2);
+        }
+
+        .table .phone {
+            padding-left: 0.5rem;
+            text-align: left;
+            vertical-align: middle;
+            width: 50%;
+            text-transform: lowercase;
+        }
+
+        .table .subtitle2 {
+            padding-right: 0;
+            padding-left: 2.5rem;
+            text-align: center;
+            vertical-align: middle;
+            width: 50%;
+            text-transform: uppercase;
+            border-right: 2px solid rgba(226, 232, 240, 0.2);
+        }
+
+        .table .email {
+            padding-left: 0.5rem;
+            text-align: left;
+            vertical-align: middle;
+            width: 50%;
+            font-size: 0.8125rem;
+            text-transform: lowercase;
+        }
+
+        .table .subtitle3-phone2 {
+            padding-right: 0.25rem;
+            padding-left: 1rem;
+            text-align: center;
+            vertical-align: middle;
+            border-bottom: 0;
+            text-transform: uppercase;
+        }
     </style>
 
 @* @using Telerik.Blazor.Components
