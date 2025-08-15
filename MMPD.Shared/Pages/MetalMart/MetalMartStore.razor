@@ -71,51 +71,46 @@ else
                     </div>
                 }
 
-                <div class="section">
-                    <div class="two-column">
-
-                        @if (Store.LocNum.HasValue)
-                        {
-                            <div class="column ">
-                                <div class="right-divider">PHONE</div>
-                                <div class="section-content">@Store.PhoneNumber</div>
-                            </div>
-                        }
-
-
-                        <div class="divider-vertical"></div>
-                        @if (!string.IsNullOrWhiteSpace(Store.Hours))
-                        {
-                            <div class="column ">
-                                <div class="left-divider">FAX</div>
-                                <div class="section-content">@Store.FaxNumber</div>
-                            </div>
-                        }
-
-                    </div>
-                </div>
-
-                @* @if (!string.IsNullOrWhiteSpace(Store.PhoneNumber))
+                @if (!string.IsNullOrWhiteSpace(Store.PhoneNumber) || !string.IsNullOrWhiteSpace(Store.FaxNumber))
                 {
                     <div class="section">
-                        <div class="detail-label">PHONE</div>
-                        <div class="detail-value">@Store.PhoneNumber</div>
+                        @if (!string.IsNullOrWhiteSpace(Store.FaxNumber))
+                        {
+                            <!-- Two-column layout when fax exists -->
+                            <div class="two-column">
+                                @if (!string.IsNullOrWhiteSpace(Store.PhoneNumber))
+                                {
+                                    <div class="column">
+                                        <div class="right-divider">PHONE</div>
+                                        <div class="section-content">@Store.PhoneNumber</div>
+                                    </div>
+                                }
+                                <div class="divider-vertical"></div>
+                                <div class="column">
+                                    <div class="left-divider">FAX</div>
+                                    <div class="section-content">@Store.FaxNumber</div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Single column layout when no fax -->
+                            @if (!string.IsNullOrWhiteSpace(Store.PhoneNumber))
+                            {
+                                <div class="section section-right">
+                                    <div class="right-divider">PHONE</div>
+                                    <div class="section-content" style="text-align: end;">@Store.PhoneNumber</div>
+                                </div>
+                            }
+                        }
                     </div>
                 }
 
-                @if (!string.IsNullOrWhiteSpace(Store.FaxNumber))
-                {
-                    <div class="detail-section">
-                        <div class="detail-label">FAX</div>
-                        <div class="detail-value">@Store.FaxNumber</div>
-                    </div>
-                } *@
-
                 @if (!string.IsNullOrWhiteSpace(Store.Email))
                 {
-                    <div class="section section-right ">
-                        <div class="right-divider">EMAIL</div>
-                        <div class="section-content section-content-email" style="text-align: end;">@Store.Email</div>
+                    <div class="section section-left">
+                        <div class="left-divider">EMAIL</div>
+                        <div class="section-content section-content-email" style="text-align: start;">@Store.Email</div>
                     </div>
                 }
 
@@ -139,6 +134,49 @@ else
             </div>
         </div>
     </div>
+
+@code {
+    [Parameter]
+    public int storeID { get; set; }
+
+    private Location? Store;
+    private HeaderCardModels.HeadInfoCardModel? StoreInfo;
+
+    private List<FooterNav.FooterItem> FooterNavItems = new()
+    {
+        new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
+        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
+        // new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
+        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter"),
+        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Plant", "/plant")
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Store = await DirectoryService.GetLocationByIdAsync("metal mart", storeID);
+
+        if (Store != null)
+        {
+            // You'll need to add a Store method to HeaderCardModels, or use Employee method
+            StoreInfo = HeaderCardModels.Store(
+                title: Store.LocName ?? "Metal Mart Store",
+                subtitle1: "Store Manager",
+                storemanager: Store.StoreManager ?? "",
+                subtitle2: "Area Manager",
+                areamanager: Store.AreaManager ?? ""
+            );
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && StoreInfo != null)
+        {
+            LayoutState.SetHeader(StoreInfo);
+            LayoutState.SetFooter(FooterNavItems);
+        }
+    }
+}
 
     <style>
         .store-details {
@@ -260,41 +298,3 @@ else
     </style>
 }
 
-@code {
-    [Parameter]
-    public int storeID { get; set; }
-
-    private Location? Store;
-    private HeaderCardModels.HeadInfoCardModel? StoreInfo;
-
-    private List<FooterNav.FooterItem> FooterNavItems = new()
-    {
-        new FooterNav.FooterItem(CustomIcons.Home, "Home", "/"),
-        new FooterNav.FooterItem(CustomIcons.Corporate, "Corporate", "/corporate"),
-        // new FooterNav.FooterItem(CustomIcons.MetalMart, "Metal Mart", "/metalmart"),
-        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Service Center", "/servicecenter"),
-        new FooterNav.FooterItem(CustomIcons.ServiceCenter, "Plant", "/plant")
-    };
-
-    protected override async Task OnParametersSetAsync()
-    {
-        Store = await DirectoryService.GetLocationByIdAsync("metal mart", storeID);
-
-        if (Store != null)
-        {
-            // You'll need to add a Store method to HeaderCardModels, or use Employee method
-            StoreInfo = HeaderCardModels.Employee(
-                title: Store.LocName ?? "Metal Mart Store"
-            );
-        }
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender && StoreInfo != null)
-        {
-            LayoutState.SetHeader(StoreInfo);
-            LayoutState.SetFooter(FooterNavItems);
-        }
-    }
-}

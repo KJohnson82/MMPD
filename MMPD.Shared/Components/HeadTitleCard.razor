@@ -147,14 +147,14 @@
                                 @if (!string.IsNullOrWhiteSpace(Info.StoreManager))
                                 {
                                     <div class="info-item">
-                                        <span class="info-label">Manager:</span>
+                                        <span class="info-label">@Info.Subtitle1</span>
                                         <span class="info-value">@Info.StoreManager</span>
                                     </div>
                                 }
                                 @if (!string.IsNullOrWhiteSpace(Info.AreaManager))
                                 {
                                     <div class="info-item">
-                                        <span class="info-label">Area:</span>
+                                        <span class="info-label">@Info.Subtitle2</span>
                                         <span class="info-value">@Info.AreaManager</span>
                                     </div>
                                 }
@@ -166,7 +166,8 @@
                 <!-- Search Section -->
                 @* <GridLayoutItem Row="4" Column="1" RowSpan="2" Class="search-section-item"> *@
                 <GridLayoutItem Row="4" Column="1" RowSpan="2"  Class="search-section-item">
-                    <SearchBar ShowBackButton="!IsHomePage" />
+                    @* <SearchBar ShowBackButton="!IsHomePage" /> *@
+                    <SearchBar />
                 </GridLayoutItem>
             </GridLayoutItems>
         </TelerikGridLayout>
@@ -341,6 +342,25 @@
 
     }
 
+    .section {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .section-right {
+        padding-right: 2rem !important;
+    }
+
+    .section-left {
+        padding-left: 2rem !important;
+    }
+
+    .section-content {
+        font-size: clamp(0.9rem, 2vw + 0.75rem, 1.25rem);
+        line-height: 1;
+        letter-spacing: 1.25px;
+    }
+
     .address-item {
         font-size: medium;
         font-weight: normal;
@@ -357,6 +377,42 @@
             margin-bottom: 2px;
             padding-bottom: 2px;
             font-size: 12px;
+        }
+
+    .left-divider {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 1.125rem;
+        color: #d4af37;
+        font-weight: 600;
+        letter-spacing: 1.25px;
+    }
+
+        .left-divider::after {
+            content: '';
+            flex: 1;
+            border-top: 3px solid #4a9eff;
+            margin-left: 1rem;
+        }
+
+    .right-divider {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 1.125rem;
+        color: #d4af37;
+        font-weight: 600;
+        letter-spacing: 1.25px;
+    }
+
+        .right-divider::before {
+            content: '';
+            flex: 1;
+            border-top: 3px solid #4a9eff;
+            margin-right: 1rem;
         }
 
     /* Territory Table */
@@ -426,13 +482,24 @@
         line-height: 1.2;
     } *@
 
+
+
     /* Search Section */
-    .search-section-item {
-        @* padding: 6px 15px; *@
+    @* .search-section-item {
+        
         background-color: rgba(0, 0, 0, 0.08);
         border-top: 1px solid var(--divider-color);
         height: 100%;
-        @* display: flex; *@
+        
         align-items: center;
+    } *@
+
+    .search-section-item {
+        background-color: rgba(0, 0, 0, 0.08);
+        border-top: 1px solid var(--divider-color);
+        height: 100%;
+        align-items: center;
+        @* display: flex; *@
+        justify-content: center;
     }
 </style>

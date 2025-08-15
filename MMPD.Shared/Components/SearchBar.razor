@@ -4,14 +4,14 @@
 @using Microsoft.AspNetCore.Components
 @using MMPD.Shared.Components
 
-<TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Inverse"
+@* <TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Inverse"
                Height="65px"
                Class="k-d-flex"
                Position="AppBarPosition.None">
 
     @if (ShowBackButton)
     {
-        <AppBarSection Class="k-justify-content-left">
+        <AppBarSection Class="k-justify-content-start">
             <BackButton>
                 <span class="k-font-size-lg k-font-bold">BACK</span>
             </BackButton>
@@ -41,3 +41,60 @@
     [Parameter]
     public bool ShowBackButton { get; set; } = true;
 }
+ *@
+
+<TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Inverse"
+               Height="65px"
+               Class="k-d-flex"
+               Position="AppBarPosition.None">
+
+    <!-- Back button - always visible on the left -->
+    <AppBarSection Class="k-justify-content-start">
+        <BackButton>
+            <span class="k-font-size-lg k-font-bold">BACK</span>
+        </BackButton>
+    </AppBarSection>
+
+    <!-- Search box - takes up remaining space -->
+    <AppBarSection class="k-d-flex k-align-items-center k-flex-grow">
+        <TelerikTextBox Rounded="lg"
+                        Class="k-w-full"
+                        Width="100%"
+                        Size="@ThemeConstants.Button.Size.Large"
+                        Placeholder="Search..."
+                        @bind-Value="@SearchQuery"
+                        OnChange="@HandleSearch" />
+    </AppBarSection>
+</TelerikAppBar>
+
+@code {
+    private string SearchQuery { get; set; } = string.Empty;
+
+    private void HandleSearch()
+    {
+        // Handle search logic here when user presses Enter
+        // You can add navigation or filtering logic as needed
+        if (!string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            // Implement your search functionality
+            Console.WriteLine($"Searching for: {SearchQuery}");
+        }
+    }
+}
+
+<style>
+    /* Ensure consistent AppBar layout */
+    .k-appbar {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 10px;
+    }
+
+        .k-appbar > .k-appbar-section:first-child {
+            flex: 0 0 auto;
+        }
+
+        .k-appbar > .k-appbar-section:last-child {
+            padding-right: 15px;
+        }
+</style>

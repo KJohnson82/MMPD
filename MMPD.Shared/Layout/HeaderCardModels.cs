@@ -96,7 +96,19 @@
             };
         }
 
-        public static HeadInfoCardModel Store(string title, string? subtitle1, string? tmanager1, string? subtitle2, string? tmanager2, string? subtitle3, string? tmanager3, string? subtitle4, string? tmanager4, string? subtitle5, string? tmanager5, string? subtitle6, string? tmanager6)
+        public static HeadInfoCardModel Store(string title, string subtitle1, string storemanager, string subtitle2, string areamanager)
+        {
+            return new HeadInfoCardModel
+            {
+                Title = title,
+                Subtitle1 = subtitle1 ?? "",
+                StoreManager = storemanager ?? "",
+                Subtitle2 = subtitle2 ?? "",
+                AreaManager = areamanager ?? ""
+            };
+        }
+
+        public static HeadInfoCardModel AreaManagers(string title, string? subtitle1, string? tmanager1, string? subtitle2, string? tmanager2, string? subtitle3, string? tmanager3, string? subtitle4, string? tmanager4, string? subtitle5, string? tmanager5, string? subtitle6, string? tmanager6)
         {
             return new HeadInfoCardModel
             {

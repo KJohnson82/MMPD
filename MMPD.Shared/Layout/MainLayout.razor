@@ -3,6 +3,7 @@
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
 @implements IDisposable
+@inject NavigationManager NavigationManager
 
 @inject MMPD.Shared.Services.LayoutState LayoutState
 
@@ -12,7 +13,16 @@
         
         <header class="main-layout-header" >
             @* <HeaderCard Info="LayoutState.HeaderInfo" /> *@
-            <HeadTitleCard Info="LayoutState.HeaderInfo" />
+            @if (IsStoreSpecificPage())
+            {
+                <StoreTitleCard StoreInfo="GetStoreInfo()" />
+            }
+            else
+            {
+                <HeadTitleCard Info="LayoutState.HeaderInfo" />
+            }
+            
+            @* <HeadTitleCard Info="LayoutState.HeaderInfo" /> *@
         </header>
 
         <main class="main-layout-content no-scrollbar">
@@ -42,6 +52,29 @@
     {
         // Unsubscribe to prevent memory leaks
         LayoutState.OnChange -= OnStateChanged;
+    }
+
+    private bool IsStoreSpecificPage()
+    {
+        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+
+        // Check if the current path matches the store-specific page patterns
+        return relativePath.StartsWith("metalmart/", StringComparison.OrdinalIgnoreCase) ||
+               relativePath.StartsWith("servicecenter/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private StoreTitleCard.StoreTitleCardModel? GetStoreInfo()
+    {
+        if (LayoutState.HeaderInfo == null)
+            return null;
+
+        // Convert HeaderInfo to StoreTitleCardModel
+        return new StoreTitleCard.StoreTitleCardModel
+        {
+            Title = LayoutState.HeaderInfo.Title ?? string.Empty,
+            StoreManager = LayoutState.HeaderInfo.StoreManager ?? string.Empty,
+            AreaManager = LayoutState.HeaderInfo.AreaManager ?? string.Empty
+        };
     }
 }
 
