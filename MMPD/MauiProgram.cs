@@ -66,6 +66,8 @@ namespace MMPD
 
             builder.Services.AddMauiBlazorWebView();
 
+            builder.Services.AddScoped<MMPD.Shared.Services.SearchService>();
+
             // 🔸 Get writable path
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, "mcelroy_directory.db");
 

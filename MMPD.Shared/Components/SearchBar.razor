@@ -1,47 +1,12 @@
-﻿@using Telerik.Blazor
+﻿@using MMPD
+@using MMPD.Data
+@using MMPD.Shared.Components
+@using MMPD.Shared.Services
+@using Microsoft.AspNetCore.Components
+@using Telerik.Blazor
 @using Telerik.Blazor.Components
 @using Telerik.SvgIcons
-@using Microsoft.AspNetCore.Components
-@using MMPD.Shared.Components
-
-@* <TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Inverse"
-               Height="65px"
-               Class="k-d-flex"
-               Position="AppBarPosition.None">
-
-    @if (ShowBackButton)
-    {
-        <AppBarSection Class="k-justify-content-start">
-            <BackButton>
-                <span class="k-font-size-lg k-font-bold">BACK</span>
-            </BackButton>
-        </AppBarSection>
-    } 
-
-    <AppBarSection class="k-d-flex k-align-items-center k-flex-grow">
-        <TelerikTextBox Rounded="lg"
-                        Class="k-w-full"
-                        Width="100%"
-                        Size="@ThemeConstants.TextBox.Size.Large"
-                        Placeholder="Search..." />
-    </AppBarSection>
-
-    <AppBarSection>
-        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
-                       Class="k-p-6"
-                       Size="@ThemeConstants.Button.Size.Large"
-                       Icon="@SvgIcon.Search"
-                       FillMode="@ThemeConstants.Button.FillMode.Solid"
-                       ButtonType="ButtonType.Button" />
-    </AppBarSection>
-
-</TelerikAppBar>
-
-@code {
-    [Parameter]
-    public bool ShowBackButton { get; set; } = true;
-}
- *@
+@inject MMPD.Shared.Services.SearchService SearchService
 
 <TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Inverse"
                Height="65px"
@@ -58,36 +23,93 @@
     <!-- Search box - takes up remaining space -->
     <AppBarSection class="k-d-flex k-align-items-center k-flex-grow">
         <TelerikTextBox Rounded="lg"
-                        Class="k-w-full"
+                        Class="k-w-full search-input"
                         Width="100%"
                         Size="@ThemeConstants.Button.Size.Large"
                         Placeholder="Search..."
-                        @bind-Value="@SearchQuery"
-                        OnChange="@HandleSearch" />
+                        Value="@SearchQuery"
+                        ValueChanged="@OnSearchValueChanged"
+                        ShowClearButton="true"
+                        DebounceDelay="300"
+                        Id="main-search-input" />
     </AppBarSection>
+
+    <!-- Search button -->
+    @* <AppBarSection Class="k-justify-content-end">
+        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                       Class="k-p-6"
+                       Size="@ThemeConstants.Button.Size.Large"
+                       Icon="@SvgIcon.Search"
+                       FillMode="@ThemeConstants.Button.FillMode.Solid"
+                       ButtonType="ButtonType.Button"
+                       OnClick="@PerformSearch"
+                       Enabled="@(!string.IsNullOrWhiteSpace(SearchQuery))" />
+    </AppBarSection> *@
 </TelerikAppBar>
+
+<!-- Search Results Modal -->
+<SearchResultsModal IsVisible="@ShowSearchModal"
+                    IsVisibleChanged="@OnSearchModalVisibilityChanged"
+                    SearchTerm="@CurrentSearchTerm" />
 
 @code {
     private string SearchQuery { get; set; } = string.Empty;
+    private string CurrentSearchTerm { get; set; } = string.Empty;
+    private bool ShowSearchModal { get; set; } = false;
 
-    private void HandleSearch()
+    private async Task OnSearchValueChanged(string newValue)
     {
-        // Handle search logic here when user presses Enter
-        // You can add navigation or filtering logic as needed
-        if (!string.IsNullOrWhiteSpace(SearchQuery))
+        SearchQuery = newValue;
+
+        // Auto-search when user types (with debounce)
+        if (!string.IsNullOrWhiteSpace(newValue) && newValue.Length >= 2)
         {
-            // Implement your search functionality
-            Console.WriteLine($"Searching for: {SearchQuery}");
+            // Wait a bit to see if user is still typing
+            await Task.Delay(100);
+            if (SearchQuery == newValue) // User stopped typing
+            {
+                await PerformSearch();
+            }
         }
+        else if (string.IsNullOrWhiteSpace(newValue))
+        {
+            // Clear search when text is cleared
+            ShowSearchModal = false;
+            CurrentSearchTerm = string.Empty;
+        }
+    }
+
+    private async Task PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(SearchQuery))
+            return;
+
+        CurrentSearchTerm = SearchQuery.Trim();
+        ShowSearchModal = true;
+        StateHasChanged();
+    }
+
+    private async Task OnSearchModalVisibilityChanged(bool isVisible)
+    {
+        ShowSearchModal = isVisible;
+        if (!isVisible)
+        {
+            // Don't clear search when modal is closed - preserve search term
+            CurrentSearchTerm = string.Empty;
+        }
+        StateHasChanged();
     }
 }
 
 <style>
-    /* Ensure consistent AppBar layout */
+    /* Ensure consistent AppBar layout without affecting parent layout */
     .k-appbar {
         display: flex !important;
         flex-direction: row !important;
         gap: 10px;
+        width: 100%;
+        height: 65px;
+        box-sizing: border-box;
     }
 
         .k-appbar > .k-appbar-section:first-child {
@@ -95,6 +117,17 @@
         }
 
         .k-appbar > .k-appbar-section:last-child {
-            padding-right: 15px;
+            padding-right: 2px;
+        }
+
+    .search-input {
+        min-width: 0;
+        flex: 1;
+    }
+
+        /* Ensure no unexpected margins or padding */
+        .search-input .k-textbox {
+            margin: 0;
+            padding: 0;
         }
 </style>

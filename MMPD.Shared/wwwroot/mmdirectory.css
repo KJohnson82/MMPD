@@ -60600,7 +60600,7 @@ col.k-sorted, .k-table-th.k-sorted {
     outline: 0;
     flex-grow: 1;
     position: relative;
-    overflow: auto
+    overflow: auto;
 }
 
     .k-listview-content::after {

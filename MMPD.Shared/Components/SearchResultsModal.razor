@@ -1,0 +1,478 @@
+﻿@using MMPD
+@using MMPD.Data.Models
+@using MMPD.Shared.Services
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@inject MMPD.Shared.Services.SearchService SearchService
+@inject NavigationManager Navigation
+
+<TelerikWindow Class="search-modal"
+               Width="350px"
+               Height="500px"
+               Draggable="true"
+               Modal="true"
+               Visible="@IsVisible"
+               VisibleChanged="@OnVisibleChanged"
+               
+>
+    <WindowTitle>
+        <strong>Search Results</strong>
+        @if (!string.IsNullOrEmpty(SearchResults?.SearchTerm))
+        {
+            <span class="search-term">for "@SearchResults.SearchTerm"</span>
+        }
+    </WindowTitle>
+    <WindowContent>
+        <div class="search-results-container">
+            @if (IsSearching)
+            {
+                <div class="text-center p-4">
+                    <TelerikLoader Visible="true" Size="@ThemeConstants.Loader.Size.Medium" />
+                    <p>Searching...</p>
+                </div>
+            }
+            else if (SearchResults?.HasResults == true)
+            {
+                <TelerikTabStrip Width="325px" TabAlignment="TabStripTabAlignment.Stretched"  >
+                    @if (SearchResults.Employees.Any())
+                    {
+                        <TabStripTab  Title="@($"Employees ({SearchResults.Employees.Count})")">
+                            <div class="results-section">
+                                @foreach (var employee in SearchResults.Employees)
+                                {
+                                    <div class="result-item employee-item" @onclick="() => NavigateToEmployee(employee.Id)">
+                                        <div class="result-header">
+                                            <strong>@employee.FirstName @employee.LastName</strong>
+                                            <span class="job-title">@employee.JobTitle</span>
+                                        </div>
+                                        <div class="result-details">
+                                            <div><TelerikSvgIcon Icon="@SvgIcon.ExclamationCircle" /> @employee.PhoneNumber</div>
+                                            @if (!string.IsNullOrEmpty(employee.CellNumber))
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.ExclamationCircle" /> @employee.CellNumber</div>
+                                            }
+                                            <div><TelerikSvgIcon Icon="@SvgIcon.ExclamationCircle" /> @employee.Email</div>
+                                            @if (employee.EmpLocation != null)
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.MapMarker" /> @employee.EmpLocation.LocName</div>
+                                            }
+                                            @if (employee.EmpDepartment != null)
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.Group" /> @employee.EmpDepartment.DeptName</div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </TabStripTab>
+                    }
+
+                    @if (SearchResults.Locations.Any())
+                    {
+                        <TabStripTab Title="@($"Locations ({SearchResults.Locations.Count})")">
+                            <div class="results-section">
+                                @foreach (var location in SearchResults.Locations)
+                                {
+                                    <div class="result-item location-item" @onclick="() => NavigateToLocation(location.Id)">
+                                        <div class="result-header">
+                                            <strong>@location.LocName</strong>
+                                            <span class="location-number">Location #@location.LocNum</span>
+                                        </div>
+                                        <div class="result-details">
+                                            <div><TelerikSvgIcon Icon="@SvgIcon.MapMarker" /> @location.Address, @location.City, @location.State @location.Zipcode</div>
+                                            @if (!string.IsNullOrEmpty(location.PhoneNumber))
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.ExclamationCircle" /> @location.PhoneNumber</div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(location.Email))
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.ExclamationCircle" /> @location.Email</div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(location.StoreManager))
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.User" /> Manager: @location.StoreManager</div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </TabStripTab>
+                    }
+
+                    @if (SearchResults.Departments.Any())
+                    {
+                        <TabStripTab Title="@($"Departments ({SearchResults.Departments.Count})")">
+                            <div class="results-section">
+                                @foreach (var department in SearchResults.Departments)
+                                {
+                                    <div class="result-item department-item" @onclick="() => NavigateToDepartment(department.Id)">
+                                        <div class="result-header">
+                                            <strong>@department.DeptName</strong>
+                                        </div>
+                                        <div class="result-details">
+                                            @if (!string.IsNullOrEmpty(department.DeptManager))
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.User" /> Manager: @department.DeptManager</div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(department.DeptPhone))
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.ExclamationCircle" /> @department.DeptPhone</div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(department.DeptEmail))
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.ExclamationCircle" /> @department.DeptEmail</div>
+                                            }
+                                            @if (department.DeptLocation != null)
+                                            {
+                                                <div><TelerikSvgIcon Icon="@SvgIcon.MapMarker" /> @department.DeptLocation.LocName</div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </TabStripTab>
+                    }
+                </TelerikTabStrip>
+            }
+            else if (!IsSearching && !string.IsNullOrEmpty(SearchResults?.SearchTerm))
+            {
+                <div class="no-results text-center p-4">
+                    <TelerikSvgIcon Icon="@SvgIcon.Search" Size="@ThemeConstants.SvgIcon.Size.ExtraLarge" />
+                    <h4>No results found</h4>
+                    <p>Try searching for:</p>
+                    <ul class="search-suggestions">
+                        <li>Employee names (first or last)</li>
+                        <li>Job titles</li>
+                        <li>Phone numbers</li>
+                        <li>Location names or numbers</li>
+                        <li>Department names</li>
+                        <li>Addresses or cities</li>
+                    </ul>
+                </div>
+            }
+        </div>
+    </WindowContent>
+    <WindowActions>
+        <WindowAction Name="Close" OnClick="@CloseModal" />
+    </WindowActions>
+</TelerikWindow>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public string SearchTerm { get; set; } = "";
+
+    private SearchResults? SearchResults { get; set; }
+    private bool IsSearching { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsVisible && !string.IsNullOrWhiteSpace(SearchTerm) &&
+            (SearchResults?.SearchTerm != SearchTerm))
+        {
+            await PerformSearch();
+        }
+    }
+
+    private async Task PerformSearch()
+    {
+        IsSearching = true;
+        StateHasChanged();
+
+        try
+        {
+            SearchResults = await SearchService.SearchAllAsync(SearchTerm);
+        }
+        catch (Exception ex)
+        {
+            // Handle search errors
+            Console.WriteLine($"Search error: {ex.Message}");
+            SearchResults = new MMPD.Shared.Services.SearchResults { SearchTerm = SearchTerm };
+        }
+        finally
+        {
+            IsSearching = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnVisibleChanged(bool isVisible)
+    {
+        await IsVisibleChanged.InvokeAsync(isVisible);
+    }
+
+    private async Task CloseModal()
+    {
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+
+    private void NavigateToEmployee(int employeeId)
+    {
+        CloseModal();
+        // For now, navigate to corporate employee - you can enhance this later to detect the correct path
+        var employee = SearchResults?.Employees.FirstOrDefault(e => e.Id == employeeId);
+        if (employee?.Department != null)
+        {
+            Navigation.NavigateTo($"/corporate/{employee.Department}/{employeeId}");
+        }
+        else
+        {
+            // Default to corporate if no department info
+            Navigation.NavigateTo($"/corporate");
+        }
+    }
+
+    private void NavigateToLocation(int locationId)
+    {
+        CloseModal();
+        var location = SearchResults?.Locations.FirstOrDefault(l => l.Id == locationId);
+        if (location?.LocationType?.LoctypeName?.ToLower() == "metal mart")
+        {
+            Navigation.NavigateTo($"/metalmart/{locationId}");
+        }
+        else if (location?.LocationType?.LoctypeName?.ToLower() == "service center")
+        {
+            Navigation.NavigateTo($"/servicecenter/{locationId}");
+        }
+        else if (location?.LocationType?.LoctypeName?.ToLower() == "plant")
+        {
+            Navigation.NavigateTo($"/plant/{locationId}");
+        }
+        else
+        {
+            // Default fallback
+            Navigation.NavigateTo($"/");
+        }
+    }
+
+    private void NavigateToDepartment(int departmentId)
+    {
+        CloseModal();
+        var department = SearchResults?.Departments.FirstOrDefault(d => d.Id == departmentId);
+        if (department?.Location != null)
+        {
+            // Check if it's a corporate department (location ID 1) or plant department
+            if (department.Location == 1)
+            {
+                Navigation.NavigateTo($"/corporate/{departmentId}");
+            }
+            else
+            {
+                // For plant departments
+                Navigation.NavigateTo($"/plant/{department.Location}/{departmentId}");
+            }
+        }
+        else
+        {
+            // Default to corporate
+            Navigation.NavigateTo($"/corporate/{departmentId}");
+        }
+    }
+}
+
+<style>
+    .search-modal {
+        padding: 0;
+        align-self: center;
+        z-index: 999;
+        border-radius: 8px;
+        background-color: var(--kendo-color-base-active);
+    }
+
+    .k-window-content {
+        background-color: var(--kendo-color-base-active);
+        border-radius: 8px;
+        
+    }
+
+    .k-window {
+        width: 90vw;
+        height: 75vh;
+        min-height: 200px;
+        min-width: 120px;
+        z-index: 10003;
+        border-radius: 8px;
+
+    }
+/* 
+    .k-tabstrip-item {
+        background-color: var(--kendo-color-base-emphasis);
+    }
+
+    .k-item:active .k-link:active .k-tabstrip-item:active {
+        background-color: var(--kendo-color-base-on-subtle);
+    } */
+
+    /* .k-tabstrip .k-tabstrip-items-wrapper .k-item {
+        background-color: var(--kendo-color-base-emphasis);
+    } */
+
+        .k-tabstrip .k-tabstrip-items-wrapper .k-item .k-active,
+        .k-tabstrip .k-tabstrip-items-wrapper .k-item .k-link .k-active,
+        .k-tabstrip .k-tabstrip-items-wrapper .k-item.k-selected {
+            background-color: var(--kendo-color-primary) !important;
+            color: var(--kendo-color-on-primary) !important;
+        padding-bottom: 5px;
+        width: -webkit-fit-content;
+        height: -webkit-fit-content;
+        position: relative;
+        }
+
+        .k-tabstrip .k-tabstrip-items-wrapper .k-item.k-tabstrip-item.k-active {
+            background-color: var(--kendo-color-primary) !important;
+            color: var(--kendo-color-on-primary) !important;
+        }
+
+        .k-tabstrip .k-tabstrip-items-wrapper .k-item:hover {
+            background-color: var(--kendo-color-primary-hover);
+            color: var(--kendo-color-on-primary);
+        }
+
+    .k-tabstrip .k-tabstrip-content {
+        background-color: var(--kendo-color-base-active);
+        padding-bottom: 5px;
+        width: -webkit-fit-content;
+        height: -webkit-fit-content;
+        position: relative;
+    }
+
+    .k-tabstrip-content {
+        background-color: var(--kendo-color-base-active);
+        padding-bottom: 5px;
+    }
+
+    .k-tabstrip-content:active {
+        background-color: var(--kendo-color-base-active);
+        padding-bottom: 5px;
+    }
+
+    .search-term {
+        color: #666;
+        font-weight: normal;
+        font-style: italic;
+        padding: 0 5px;
+    }
+
+    .search-results-container {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .k-window-titlebar {
+        border-radius: 8px 8px 0 0;
+        background-color: var(--kendo-color-primary-emphasis);
+        color: var(--kendo-color-on-app-surface);
+    }
+
+    .results-section {
+        max-height: 350px;
+        /* overflow-y: auto; */
+        padding: 5px;
+    }
+
+    .result-item {
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        word-break: break-all;
+        background-color: var(--kendo-color-primary-emphasis);
+    }
+
+        .result-item:hover {
+            background-color: var(--kendo-color-primary-hover);
+            border-color: #007acc;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 122, 204, 0.15);
+        }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+        .result-header strong {
+            color: #333;
+            font-size: 16px;
+            word-break: auto-phrase;
+        }
+
+    .job-title, .location-number {
+        
+        color: #1976d2;
+        padding: 2px 0 8px 0;
+        font-size: 13px;
+        font-weight: 400;
+        word-break: auto-phrase;
+        text-align: end;
+    }
+
+    .result-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-weight: bold;
+    }
+
+        .result-details div {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .result-details .k-svg-icon {
+            width: 16px;
+            height: 16px;
+            color: #007acc;
+        }
+
+    .employee-item:hover {
+        border-color: #4caf50;
+    }
+
+        .employee-item:hover .job-title {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+
+    .location-item:hover {
+        border-color: #ff9800;
+    }
+
+        .location-item:hover .location-number {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+    .department-item:hover {
+        border-color: #9c27b0;
+    }
+
+    .no-results {
+        color: #666;
+    }
+
+        .no-results .k-svg-icon {
+            color: #ccc;
+            margin-bottom: 16px;
+        }
+
+    .search-suggestions {
+        text-align: left;
+        display: inline-block;
+        margin: 0;
+        padding-left: 20px;
+    }
+
+        .search-suggestions li {
+            margin-bottom: 4px;
+            color: #888;
+        }
+</style>

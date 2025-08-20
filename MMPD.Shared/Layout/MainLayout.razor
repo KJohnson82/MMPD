@@ -1,5 +1,4 @@
-﻿
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
 @implements IDisposable
@@ -12,17 +11,17 @@
     <div class="main-layout-container">
         
         <header class="main-layout-header" >
-            @* <HeaderCard Info="LayoutState.HeaderInfo" /> *@
             @if (IsStoreSpecificPage())
             {
                 <StoreTitleCard StoreInfo="GetStoreInfo()" />
+            }
+            else if (IsCorpPage()) {
+                <CorpHeadCard Info="LayoutState.HeaderInfo" />
             }
             else
             {
                 <HeadTitleCard Info="LayoutState.HeaderInfo" />
             }
-            
-            @* <HeadTitleCard Info="LayoutState.HeaderInfo" /> *@
         </header>
 
         <main class="main-layout-content no-scrollbar">
@@ -63,6 +62,16 @@
                relativePath.StartsWith("servicecenter/", StringComparison.OrdinalIgnoreCase);
     }
 
+    private bool IsCorpPage()
+    {
+        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+
+        // Check if the current path is home or corporate related
+        return string.IsNullOrEmpty(relativePath) || 
+               relativePath == "home" || 
+               relativePath.StartsWith("corporate");
+    }
+
     private StoreTitleCard.StoreTitleCardModel? GetStoreInfo()
     {
         if (LayoutState.HeaderInfo == null)
@@ -79,21 +88,6 @@
 }
 
 <style>
-    /* .main-layout-container {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-    }
-
-    .main-layout-header,
-    .main-layout-footer {
-        flex-shrink: 0; 
-    }
-
-    .main-layout-content {
-        flex-grow: 1; 
-        overflow-y: auto; 
-    } */
     .main-layout-container {
         display: flex;
         flex-direction: column;
@@ -101,18 +95,16 @@
     }
 
     .main-layout-header {
-        flex-shrink: 0; /* Prevents header from shrinking */
-        
+        flex-shrink: 0;
     }
 
     .main-layout-footer {
-        flex-shrink: 0; /* Prevents footer from shrinking */
-        
+        flex-shrink: 0;
     }
 
     .main-layout-content {
-        flex: 1; /* Takes up remaining space between header and footer */
-        overflow-y: hidden; /* Adds scrollbar if content overflows */
-        min-height: 0; /* Ensures flexbox works properly */
+        flex: 1;
+        overflow-y: hidden;
+        min-height: 0;
     }
 </style>
