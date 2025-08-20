@@ -2,6 +2,8 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    height: fit-content;
+    width:auto;
 }
 
 main {
@@ -74,4 +76,113 @@ main {
         padding-left: 2rem !important;
         padding-right: 1.5rem !important;
     }
+}
+
+/* Add this CSS to your MainLayout.razor <style> section */
+
+/* Ensure full viewport height usage */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+#blazor-error-ui {
+    display: none;
+}
+
+/* Main application container */
+.telerik-blazor-app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top app bar - fixed height */
+.appbar-top {
+    flex-shrink: 0;
+    z-index: 1000;
+}
+
+/* Main content area - fills remaining space */
+.mainlayout-drawer {
+    flex: 1;
+    display: flex;
+    min-height: 0; /* Important for flex child */
+    overflow: hidden;
+}
+
+    /* Drawer content area */
+    .mainlayout-drawer .k-drawer-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    /* Main content wrapper */
+    .mainlayout-drawer main {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        min-height: 0; /* Important for flex child */
+    }
+
+/* Bottom app bar - fixed height */
+.appbar-bottom {
+    flex-shrink: 0;
+    margin-top: auto; /* Push to bottom */
+}
+
+/* Ensure grids fill available space */
+.k-grid {
+    height: auto;
+    max-height: none;
+}
+
+/* Page content wrapper */
+.page-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Page header adjustments */
+.page-header {
+    flex-shrink: 0;
+    margin-bottom: 1rem;
+}
+
+/* Grid container adjustments */
+.grid-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Remove default margins that cause spacing issues */
+.k-drawer-container {
+    margin: 0 !important;
+    height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .mainlayout-drawer main {
+        padding: 0.5rem;
+    }
+}
+
+/* Fix for Telerik component spacing */
+.k-appbar + .k-drawer-container {
+    height: calc(100vh - 60px - 50px); /* Subtract header and footer heights */
+}
+
+/* Ensure proper stacking context */
+.k-drawer-content {
+    position: relative;
+    z-index: 1;
 }
