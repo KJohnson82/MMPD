@@ -10,18 +10,32 @@ using MMPD.Data.Models;
 
 namespace MMPD.Api.Controllers
 {
+    /// <summary>
+    /// API controller for managing Location entities.
+    /// Provides endpoints for CRUD operations and specialized queries for locations.
+    /// All endpoints require a valid API key for authorization.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class LocationsController : ControllerBase
     {
         private readonly AppDbContext _context;
 
+        /// <summary>
+        /// Initializes a new instance of the LocationsController.
+        /// </summary>
+        /// <param name="context">The database context injected for data access.</param>
         public LocationsController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Locations
+        /// <summary>
+        /// GET: api/Locations
+        /// Retrieves a list of all active locations, including their active departments and employees.
+        /// </summary>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A list of active locations.</returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Location>>> GetLocations([FromQuery] string? apiKey = null)
         {
@@ -37,7 +51,13 @@ namespace MMPD.Api.Controllers
                 .ToListAsync();
         }
 
-        // GET: api/Locations/5
+        /// <summary>
+        /// GET: api/Locations/5
+        /// Retrieves a specific active location by its ID, including all its active children.
+        /// </summary>
+        /// <param name="id">The ID of the location to retrieve.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>The requested location or a 404 Not Found response.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Location>> GetLocation(int id, [FromQuery] string? apiKey = null)
         {
@@ -58,21 +78,27 @@ namespace MMPD.Api.Controllers
             return location;
         }
 
-        // GET: api/Locations/type/corporate
+        /// <summary>
+        /// GET: api/Locations/type/corporate
+        /// Retrieves all active locations of a specific type (e.g., "plant", "corporate").
+        /// </summary>
+        /// <param name="locationType">The string representation of the location type.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A list of locations matching the specified type.</returns>
         [HttpGet("type/{locationType}")]
         public async Task<ActionResult<IEnumerable<Location>>> GetLocationsByType(string locationType, [FromQuery] string? apiKey = null)
         {
             if (!IsValidApiKey(apiKey))
                 return Unauthorized("Invalid or missing API key");
 
-            // Map string to location type ID based on your ExportData class
+            // Map the incoming string to a corresponding location type ID.
             var locationTypeId = locationType.ToLower() switch
             {
                 "corporate" => 1,
                 "metalmart" or "metal-mart" or "metal mart" => 2,
                 "servicecenter" or "service-center" or "service center" => 3,
                 "plant" => 4,
-                _ => -1
+                _ => -1 // Invalid type
             };
 
             if (locationTypeId == -1)
@@ -80,67 +106,65 @@ namespace MMPD.Api.Controllers
                 return BadRequest("Invalid location type. Valid types: corporate, metalmart, servicecenter, plant");
             }
 
-            return await _context.Locations
-                .Include(l => l.LocationType)
-                .Include(l => l.Departments.Where(d => d.Active == true))
-                    .ThenInclude(d => d.Employees.Where(e => e.Active == true))
-                .Where(l => l.Loctype == locationTypeId && l.Active == true)
-                .OrderBy(l => l.LocNum ?? 0)
-                .ThenBy(l => l.LocName)
-                .ToListAsync();
+            // Use the helper method to fetch data by the resolved type ID.
+            return await GetLocationsByTypeId(locationTypeId);
         }
 
-        // GET: api/Locations/corporate (Matches your ExportData.FetchCorpDataAsync)
+        #region Convenience Endpoints by Type
+        // These endpoints provide simple, direct routes to get locations of a specific type.
+
+        /// <summary>GET: api/Locations/corporate</summary>
         [HttpGet("corporate")]
         public async Task<ActionResult<IEnumerable<Location>>> GetCorporateLocations([FromQuery] string? apiKey = null)
         {
-            if (!IsValidApiKey(apiKey))
-                return Unauthorized("Invalid or missing API key");
-
+            if (!IsValidApiKey(apiKey)) return Unauthorized("Invalid or missing API key");
             return await GetLocationsByTypeId(1);
         }
 
-        // GET: api/Locations/metalmart (Matches your ExportData.FetchMMDataAsync)
+        /// <summary>GET: api/Locations/metalmart</summary>
         [HttpGet("metalmart")]
         public async Task<ActionResult<IEnumerable<Location>>> GetMetalMartLocations([FromQuery] string? apiKey = null)
         {
-            if (!IsValidApiKey(apiKey))
-                return Unauthorized("Invalid or missing API key");
-
+            if (!IsValidApiKey(apiKey)) return Unauthorized("Invalid or missing API key");
             return await GetLocationsByTypeId(2);
         }
 
-        // GET: api/Locations/servicecenter (Matches your ExportData.FetchSCDataAsync)
+        /// <summary>GET: api/Locations/servicecenter</summary>
         [HttpGet("servicecenter")]
         public async Task<ActionResult<IEnumerable<Location>>> GetServiceCenterLocations([FromQuery] string? apiKey = null)
         {
-            if (!IsValidApiKey(apiKey))
-                return Unauthorized("Invalid or missing API key");
-
+            if (!IsValidApiKey(apiKey)) return Unauthorized("Invalid or missing API key");
             return await GetLocationsByTypeId(3);
         }
 
-        // GET: api/Locations/plant (Matches your ExportData.FetchPlantDataAsync)
+        /// <summary>GET: api/Locations/plant</summary>
         [HttpGet("plant")]
         public async Task<ActionResult<IEnumerable<Location>>> GetPlantLocations([FromQuery] string? apiKey = null)
         {
-            if (!IsValidApiKey(apiKey))
-                return Unauthorized("Invalid or missing API key");
-
+            if (!IsValidApiKey(apiKey)) return Unauthorized("Invalid or missing API key");
             return await GetLocationsByTypeId(4);
         }
 
-        // GET: api/Locations/5/departments
+        #endregion
+
+        /// <summary>
+        /// GET: api/Locations/5/departments
+        /// Retrieves all active departments for a specific location.
+        /// </summary>
+        /// <param name="id">The ID of the location.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A list of active departments for the location.</returns>
         [HttpGet("{id}/departments")]
         public async Task<ActionResult<IEnumerable<Department>>> GetLocationDepartments(int id, [FromQuery] string? apiKey = null)
         {
             if (!IsValidApiKey(apiKey))
                 return Unauthorized("Invalid or missing API key");
 
+            // Ensure the parent location exists and is active before fetching its children.
             var location = await _context.Locations.FindAsync(id);
             if (location == null || location.Active != true)
             {
-                return NotFound();
+                return NotFound("Location not found or is inactive.");
             }
 
             return await _context.Departments
@@ -150,7 +174,13 @@ namespace MMPD.Api.Controllers
                 .ToListAsync();
         }
 
-        // GET: api/Locations/5/employees
+        /// <summary>
+        /// GET: api/Locations/5/employees
+        /// Retrieves all active employees for a specific location.
+        /// </summary>
+        /// <param name="id">The ID of the location.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A list of active employees for the location.</returns>
         [HttpGet("{id}/employees")]
         public async Task<ActionResult<IEnumerable<Employee>>> GetLocationEmployees(int id, [FromQuery] string? apiKey = null)
         {
@@ -160,7 +190,7 @@ namespace MMPD.Api.Controllers
             var location = await _context.Locations.FindAsync(id);
             if (location == null || location.Active != true)
             {
-                return NotFound();
+                return NotFound("Location not found or is inactive.");
             }
 
             return await _context.Employees
@@ -171,9 +201,14 @@ namespace MMPD.Api.Controllers
                 .ToListAsync();
         }
 
-
-        // PUT: api/Locations/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// PUT: api/Locations/5
+        /// Updates an existing location.
+        /// </summary>
+        /// <param name="id">The ID of the location to update.</param>
+        /// <param name="location">The updated location object.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A 204 No Content response on success.</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutLocation(int id, Location location, [FromQuery] string? apiKey = null)
         {
@@ -182,7 +217,7 @@ namespace MMPD.Api.Controllers
 
             if (id != location.Id)
             {
-                return BadRequest("ID mismatch");
+                return BadRequest("ID mismatch between route and request body.");
             }
 
             var existingLocation = await _context.Locations.AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
@@ -212,24 +247,28 @@ namespace MMPD.Api.Controllers
             return NoContent();
         }
 
-
-        // POST: api/Locations
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// POST: api/Locations
+        /// Creates a new location.
+        /// </summary>
+        /// <param name="location">The location object to create.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>The newly created location with a 201 Created status.</returns>
         [HttpPost]
         public async Task<ActionResult<Location>> PostLocation(Location location, [FromQuery] string? apiKey = null)
         {
             if (!IsValidApiKey(apiKey))
                 return Unauthorized("Invalid or missing API key");
 
-            // Set defaults for new location
+            // Set default values for a new location.
             location.Active = true;
             location.RecordAdd = DateTime.UtcNow;
 
-            // Validate location type exists
+            // Validate that the specified location type exists.
             var locationTypeExists = await _context.Loctypes.AnyAsync(lt => lt.Id == location.Loctype);
             if (!locationTypeExists)
             {
-                return BadRequest("Invalid location type ID");
+                return BadRequest("Invalid location type ID.");
             }
 
             _context.Locations.Add(location);
@@ -238,7 +277,13 @@ namespace MMPD.Api.Controllers
             return CreatedAtAction("GetLocation", new { id = location.Id, apiKey }, location);
         }
 
-        // DELETE: api/Locations/5 (Soft Delete)
+        /// <summary>
+        /// DELETE: api/Locations/5 (Soft Delete)
+        /// Deactivates a location if it has no active departments or employees.
+        /// </summary>
+        /// <param name="id">The ID of the location to delete.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A 204 No Content response on success.</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLocation(int id, [FromQuery] string? apiKey = null)
         {
@@ -255,7 +300,7 @@ namespace MMPD.Api.Controllers
                 return NotFound();
             }
 
-            // Check if location has active departments or employees
+            // Business rule: Prevent deletion if the location contains any active children.
             var hasActiveDepartments = location.Departments.Any(d => d.Active == true);
             var hasActiveEmployees = location.Departments.Any(d => d.Employees.Any(e => e.Active == true));
 
@@ -264,14 +309,20 @@ namespace MMPD.Api.Controllers
                 return BadRequest("Cannot delete location with active departments or employees. Please reassign or deactivate them first.");
             }
 
-            // Soft delete - set Active to false
+            // Perform a soft delete by setting the Active flag to false.
             location.Active = false;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // POST: api/Locations/5/restore
+        /// <summary>
+        /// POST: api/Locations/5/restore
+        /// Restores a soft-deleted (inactive) location.
+        /// </summary>
+        /// <param name="id">The ID of the location to restore.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A 204 No Content response on success.</returns>
         [HttpPost("{id}/restore")]
         public async Task<IActionResult> RestoreLocation(int id, [FromQuery] string? apiKey = null)
         {
@@ -284,12 +335,16 @@ namespace MMPD.Api.Controllers
                 return NotFound();
             }
 
+            // Restore the location by setting its Active flag back to true.
             location.Active = true;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
+        /// <summary>
+        /// Reusable helper method to fetch locations by their type ID.
+        /// </summary>
         private async Task<List<Location>> GetLocationsByTypeId(int locationTypeId)
         {
             return await _context.Locations
@@ -302,11 +357,17 @@ namespace MMPD.Api.Controllers
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Checks if a location with the specified ID exists.
+        /// </summary>
         private bool LocationExists(int id)
         {
             return _context.Locations.Any(e => e.Id == id);
         }
 
+        /// <summary>
+        /// Validates the provided API key against a list of known, valid keys.
+        /// </summary>
         private bool IsValidApiKey(string? apiKey)
         {
             if (string.IsNullOrEmpty(apiKey))
@@ -321,5 +382,4 @@ namespace MMPD.Api.Controllers
             return validKeys.Contains(apiKey);
         }
     }
-
 }

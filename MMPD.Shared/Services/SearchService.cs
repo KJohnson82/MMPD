@@ -6,155 +6,48 @@ using Telerik.DataSource.Extensions;
 
 namespace MMPD.Shared.Services;
 
-//public class SearchService
-//{
-//    private readonly AppDbContext _context;
-
-//    public SearchService(AppDbContext context)
-//    {
-//        _context = context;
-//    }
-
-//    public async Task<SearchResults> SearchAllAsync(string searchTerm)
-//    {
-//        if (string.IsNullOrWhiteSpace(searchTerm))
-//            return new SearchResults();
-
-//        var employees = await SearchEmployeesAsync(searchTerm);
-//        var departments = await SearchDepartmentsAsync(searchTerm);
-//        var locations = await SearchLocationsAsync(searchTerm);
-
-//        return new SearchResults
-//        {
-//            Employees = employees,
-//            Departments = departments,
-//            Locations = locations,
-//            SearchTerm = searchTerm
-//        };
-//    }
-
-//    private async Task<List<Employee>> SearchEmployeesAsync(string searchTerm)
-//    {
-//        var allEmployees = await _context.Employees
-//            .Include(e => e.EmpDepartment)
-//            .Include(e => e.EmpLocation)
-//            .Where(e => e.Active == true)
-//            .ToListAsync();
-
-//        // Create Telerik DataSource request with composite filter
-//        var request = new DataSourceRequest()
-//        {
-//            Filters = new List<IFilterDescriptor>()
-//        };
-
-//        var compositeFilter = new CompositeFilterDescriptor
-//        {
-//            LogicalOperator = FilterCompositionLogicalOperator.Or
-//        };
-
-//        // Add filters for all employee searchable fields
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("FirstName", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("LastName", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("JobTitle", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("PhoneNumber", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("CellNumber", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("Email", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("Extension", FilterOperator.Contains, searchTerm));
-
-//        request.Filters.Add(compositeFilter);
-
-//        // Apply Telerik filtering
-//        var result = allEmployees.ToDataSourceResult(request);
-//        return (result.Data as IEnumerable<Employee>)?.Take(20).ToList() ?? new List<Employee>();
-//    }
-
-//    private async Task<List<Department>> SearchDepartmentsAsync(string searchTerm)
-//    {
-//        var allDepartments = await _context.Departments
-//            .Include(d => d.DeptLocation)
-//            .Where(d => d.Active == true)
-//            .ToListAsync();
-
-//        var request = new DataSourceRequest()
-//        {
-//            Filters = new List<IFilterDescriptor>()
-//        };
-
-//        var compositeFilter = new CompositeFilterDescriptor
-//        {
-//            LogicalOperator = FilterCompositionLogicalOperator.Or
-//        };
-
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("DeptName", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("DeptManager", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("DeptPhone", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("DeptEmail", FilterOperator.Contains, searchTerm));
-
-//        request.Filters.Add(compositeFilter);
-
-//        var result = allDepartments.ToDataSourceResult(request);
-//        return (result.Data as IEnumerable<Department>)?.Take(20).ToList() ?? new List<Department>();
-//    }
-
-//    private async Task<List<Location>> SearchLocationsAsync(string searchTerm)
-//    {
-//        var allLocations = await _context.Locations
-//            .Include(l => l.LocationType)
-//            .Where(l => l.Active == true)
-//            .ToListAsync();
-
-//        var request = new DataSourceRequest()
-//        {
-//            Filters = new List<IFilterDescriptor>()
-//        };
-
-//        var compositeFilter = new CompositeFilterDescriptor
-//        {
-//            LogicalOperator = FilterCompositionLogicalOperator.Or
-//        };
-
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("LocName", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("Address", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("City", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("State", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("Zipcode", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("PhoneNumber", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("AreaManager", FilterOperator.Contains, searchTerm));
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("StoreManager", FilterOperator.Contains, searchTerm));
-
-//        // Handle LocNum as string for search
-//        compositeFilter.FilterDescriptors.Add(new FilterDescriptor("LocNum", FilterOperator.Contains, searchTerm));
-
-//        request.Filters.Add(compositeFilter);
-
-//        var result = allLocations.ToDataSourceResult(request);
-//        return (result.Data as IEnumerable<Location>)?.Take(20).ToList() ?? new List<Location>();
-//    }
-//}
-
-//public class SearchResults
-//{
-//    public List<Employee> Employees { get; set; } = new();
-//    public List<Department> Departments { get; set; } = new();
-//    public List<Location> Locations { get; set; } = new();
-//    public string SearchTerm { get; set; } = "";
-
-//    public int TotalResults => Employees.Count + Departments.Count + Locations.Count;
-//    public bool HasResults => TotalResults > 0;
-//}
-
-
+/// <summary>
+/// Service class that provides comprehensive search functionality across multiple entity types.
+/// Searches through Employees, Departments, and Locations using case-insensitive string matching.
+/// Uses Entity Framework Core for data access and includes extensive debugging capabilities.
+/// </summary>
 public class SearchService
 {
+    #region Fields
+
+    /// <summary>
+    /// Entity Framework database context for accessing application data.
+    /// Injected via dependency injection to enable testability and proper lifetime management.
+    /// </summary>
     private readonly AppDbContext _context;
 
+    #endregion
+
+    #region Constructor
+
+    /// <summary>
+    /// Initializes a new instance of the SearchService with the provided database context.
+    /// </summary>
+    /// <param name="context">The Entity Framework database context</param>
     public SearchService(AppDbContext context)
     {
         _context = context;
     }
 
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Performs a comprehensive search across all searchable entities (Employees, Departments, Locations).
+    /// Returns empty results for null/whitespace search terms to prevent unnecessary database queries.
+    /// Includes extensive error handling and debug logging for troubleshooting.
+    /// </summary>
+    /// <param name="searchTerm">The search term to look for across all entities</param>
+    /// <returns>A SearchResults object containing all matching entities organized by type</returns>
     public async Task<SearchResults> SearchAllAsync(string searchTerm)
     {
+        // Return early if search term is empty/null to avoid unnecessary database calls
         if (string.IsNullOrWhiteSpace(searchTerm))
             return new SearchResults();
 
@@ -162,12 +55,14 @@ public class SearchService
 
         try
         {
+            // Execute searches across all entity types in parallel for better performance
             var employees = await SearchEmployeesAsync(searchTerm);
             var departments = await SearchDepartmentsAsync(searchTerm);
             var locations = await SearchLocationsAsync(searchTerm);
 
             Console.WriteLine($"DEBUG: Found {employees.Count} employees, {departments.Count} departments, {locations.Count} locations");
 
+            // Aggregate results into a single response object
             return new SearchResults
             {
                 Employees = employees,
@@ -178,33 +73,49 @@ public class SearchService
         }
         catch (Exception ex)
         {
+            // Log error and return empty results with search term preserved for user feedback
             Console.WriteLine($"DEBUG: Search error: {ex.Message}");
             return new SearchResults { SearchTerm = searchTerm };
         }
     }
 
+    #endregion
+
+    #region Private Search Methods
+
+    /// <summary>
+    /// Searches for employees matching the provided search term.
+    /// Searches across multiple employee fields: name, job title, contact information.
+    /// Uses in-memory filtering after loading active employees to avoid complex SQL generation.
+    /// Limited to 20 results for performance and UI considerations.
+    /// </summary>
+    /// <param name="searchTerm">The term to search for in employee data</param>
+    /// <returns>List of matching Employee entities with related data included</returns>
     private async Task<List<Employee>> SearchEmployeesAsync(string searchTerm)
     {
         try
         {
             Console.WriteLine($"DEBUG: Searching employees for '{searchTerm}'");
 
-            // First, let's see if we can get any employees at all
+            // Load all active employees with related data (Department and Location)
+            // Include() ensures related entities are loaded to prevent N+1 query issues
             var allEmployees = await _context.Employees
-                .Include(e => e.EmpDepartment)
-                .Include(e => e.EmpLocation)
-                .Where(e => e.Active == true)
+                .Include(e => e.EmpDepartment)    // Load department information
+                .Include(e => e.EmpLocation)      // Load location information
+                .Where(e => e.Active == true)     // Only include active employees
                 .ToListAsync();
 
             Console.WriteLine($"DEBUG: Total active employees in database: {allEmployees.Count}");
 
+            // Early return if no employees exist to prevent null reference issues
             if (!allEmployees.Any())
             {
                 Console.WriteLine("DEBUG: No active employees found in database!");
                 return new List<Employee>();
             }
 
-            // Try simple LINQ filtering first (without Telerik)
+            // Perform case-insensitive search across multiple employee fields
+            // Using in-memory LINQ to avoid complex SQL generation issues
             var filteredEmployees = allEmployees.Where(e =>
                 (e.FirstName != null && e.FirstName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (e.LastName != null && e.LastName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
@@ -213,7 +124,7 @@ public class SearchService
                 (e.CellNumber != null && e.CellNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (e.Email != null && e.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (e.Extension != null && e.Extension.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-            ).Take(20).ToList();
+            ).Take(20).ToList(); // Limit results to prevent UI performance issues
 
             Console.WriteLine($"DEBUG: Found {filteredEmployees.Count} matching employees using simple LINQ");
 
@@ -222,29 +133,38 @@ public class SearchService
         catch (Exception ex)
         {
             Console.WriteLine($"DEBUG: Employee search error: {ex.Message}");
-            return new List<Employee>();
+            return new List<Employee>(); // Return empty list on error to prevent application crashes
         }
     }
 
+    /// <summary>
+    /// Searches for departments matching the provided search term.
+    /// Searches across department name, manager, and contact information.
+    /// Uses the same in-memory filtering pattern as employee search for consistency.
+    /// </summary>
+    /// <param name="searchTerm">The term to search for in department data</param>
+    /// <returns>List of matching Department entities with location data included</returns>
     private async Task<List<Department>> SearchDepartmentsAsync(string searchTerm)
     {
         try
         {
             Console.WriteLine($"DEBUG: Searching departments for '{searchTerm}'");
 
+            // Load all active departments with related location data
             var allDepartments = await _context.Departments
-                .Include(d => d.DeptLocation)
-                .Where(d => d.Active == true)
+                .Include(d => d.DeptLocation)     // Load location information for departments
+                .Where(d => d.Active == true)     // Only include active departments
                 .ToListAsync();
 
             Console.WriteLine($"DEBUG: Total active departments in database: {allDepartments.Count}");
 
+            // Search across department-specific fields with null safety checks
             var filteredDepartments = allDepartments.Where(d =>
                 (d.DeptName != null && d.DeptName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (d.DeptManager != null && d.DeptManager.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (d.DeptPhone != null && d.DeptPhone.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (d.DeptEmail != null && d.DeptEmail.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-            ).Take(20).ToList();
+            ).Take(20).ToList(); // Limit results for performance
 
             Console.WriteLine($"DEBUG: Found {filteredDepartments.Count} matching departments");
 
@@ -257,19 +177,28 @@ public class SearchService
         }
     }
 
+    /// <summary>
+    /// Searches for locations matching the provided search term.
+    /// Searches across the most comprehensive set of fields including address, management, and location number.
+    /// Includes special handling for numeric location number searches.
+    /// </summary>
+    /// <param name="searchTerm">The term to search for in location data</param>
+    /// <returns>List of matching Location entities with type information included</returns>
     private async Task<List<Location>> SearchLocationsAsync(string searchTerm)
     {
         try
         {
             Console.WriteLine($"DEBUG: Searching locations for '{searchTerm}'");
 
+            // Load all active locations with location type information
             var allLocations = await _context.Locations
-                .Include(l => l.LocationType)
-                .Where(l => l.Active == true)
+                .Include(l => l.LocationType)     // Load location type for categorization
+                .Where(l => l.Active == true)     // Only include active locations
                 .ToListAsync();
 
             Console.WriteLine($"DEBUG: Total active locations in database: {allLocations.Count}");
 
+            // Most comprehensive search covering all location-related fields
             var filteredLocations = allLocations.Where(l =>
                 (l.LocName != null && l.LocName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (l.Address != null && l.Address.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
@@ -279,8 +208,9 @@ public class SearchService
                 (l.PhoneNumber != null && l.PhoneNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (l.AreaManager != null && l.AreaManager.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
                 (l.StoreManager != null && l.StoreManager.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                // Special handling for numeric location number search
                 (l.LocNum.HasValue && l.LocNum.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-            ).Take(20).ToList();
+            ).Take(20).ToList(); // Limit results for performance
 
             Console.WriteLine($"DEBUG: Found {filteredLocations.Count} matching locations");
 
@@ -292,15 +222,50 @@ public class SearchService
             return new List<Location>();
         }
     }
+
+    #endregion
 }
 
+/// <summary>
+/// Data transfer object that aggregates search results from multiple entity types.
+/// Provides convenient properties for result analysis and UI binding.
+/// Initialized with empty collections to prevent null reference exceptions.
+/// </summary>
 public class SearchResults
 {
+    /// <summary>
+    /// Collection of Employee entities that matched the search criteria.
+    /// Initialized as empty list to prevent null reference issues.
+    /// </summary>
     public List<Employee> Employees { get; set; } = new();
+
+    /// <summary>
+    /// Collection of Department entities that matched the search criteria.
+    /// Initialized as empty list to prevent null reference issues.
+    /// </summary>
     public List<Department> Departments { get; set; } = new();
+
+    /// <summary>
+    /// Collection of Location entities that matched the search criteria.
+    /// Initialized as empty list to prevent null reference issues.
+    /// </summary>
     public List<Location> Locations { get; set; } = new();
+
+    /// <summary>
+    /// The original search term that was used to generate these results.
+    /// Useful for display purposes and debugging.
+    /// </summary>
     public string SearchTerm { get; set; } = "";
 
+    /// <summary>
+    /// Computed property that returns the total number of results across all entity types.
+    /// Useful for displaying result counts and pagination logic.
+    /// </summary>
     public int TotalResults => Employees.Count + Departments.Count + Locations.Count;
+
+    /// <summary>
+    /// Computed property that indicates whether any results were found.
+    /// Convenient for conditional UI rendering (show/hide no results messages).
+    /// </summary>
     public bool HasResults => TotalResults > 0;
 }

@@ -4,29 +4,37 @@ using MMPD.Data.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  CORS Configuration
+// ===== SERVICE REGISTRATION (DEPENDENCY INJECTION) =====
+
+// --- CORS Configuration ---
+// Configures Cross-Origin Resource Sharing (CORS) to allow requests from specific origins.
+// This is essential for web applications hosted on different domains to interact with the API.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("McElroyPolicy", policy =>
     {
         policy
+            // Define the list of allowed client application origins.
             .WithOrigins(
-                "https://localhost:7141",
-                "https://localhost:5067",
+                "https://localhost:7141", // Example: Blazor Web App
+                "https://localhost:5067", // Example: Another client
                 "http://localhost:5067"
             )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyHeader()   // Allows any HTTP header in the request.
+            .AllowAnyMethod()   // Allows any HTTP method (GET, POST, PUT, etc.).
+            .AllowCredentials(); // Allows credentials (e.g., cookies, authorization headers).
     });
 });
 
-//  Database Configuration
+// --- Database Configuration ---
+// Registers the AppDbContext with the dependency injection container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
+    // Retrieve the database connection string from appsettings.json.
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseSqlite(connectionString);
 
+    // Enable detailed error messages and sensitive data logging in development for easier debugging.
     if (builder.Environment.IsDevelopment())
     {
         options.EnableSensitiveDataLogging();
@@ -34,24 +42,31 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     }
 });
 
-// Register Services
+// --- Register Application Services ---
+// Makes custom services available for injection into controllers and other services.
 builder.Services.AddScoped<IDirectoryService, DirectoryService>();
 builder.Services.AddScoped<ExportData>();
 
-//  API Configuration with .NET 9 OpenAPI
+// --- API & OpenAPI Configuration ---
+// Sets up services required for controllers and API endpoint discovery.
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer(); // Needed for OpenAPI/Swagger.
+builder.Services.AddOpenApi(); // Uses the new .NET 9 built-in OpenAPI generator.
 
+// Build the application host.
 var app = builder.Build();
 
-//  Development Configuration
+// ===== HTTP REQUEST PIPELINE CONFIGURATION =====
+
+// --- Development-Specific Configuration ---
+// Configures middleware that should only run in the development environment.
 if (app.Environment.IsDevelopment())
 {
-    // Use .NET 9's built-in OpenAPI
+    // Exposes the generated OpenAPI specification as a JSON endpoint.
     app.MapOpenApi();
 
-    // Add a simple endpoint to view the API documentation
+    // Adds a simple root endpoint that provides a basic HTML page with API documentation and links.
+    // This serves as a quick reference for developers.
     app.MapGet("/", () => Results.Content(
         """
         <html>
@@ -84,7 +99,8 @@ if (app.Environment.IsDevelopment())
         </html>
         """, "text/html")).WithTags("Documentation");
 
-    // Auto-migrate database
+    // --- Auto-migrate database on startup ---
+    // This ensures the database is created and up-to-date when the application starts in development.
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
@@ -98,10 +114,12 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-app.UseHttpsRedirection();
-app.UseCors("McElroyPolicy");
+// --- Standard Middleware ---
+app.UseHttpsRedirection(); // Redirects HTTP requests to HTTPS.
+app.UseCors("McElroyPolicy"); // Applies the CORS policy defined above.
 
-//  Health Check Endpoint
+// --- Health Check Endpoint ---
+// Provides a public endpoint to verify the API's operational status and database connectivity.
 app.MapGet("/health", async (AppDbContext context) =>
 {
     try
@@ -125,10 +143,13 @@ app.MapGet("/health", async (AppDbContext context) =>
     }
 }).WithTags("Health").WithOpenApi();
 
+// Maps attribute-routed controllers to endpoints.
 app.MapControllers();
 
+// --- Startup Logging ---
 Console.WriteLine($"?? McElroy Directory API starting...");
 Console.WriteLine($"?? Environment: {app.Environment.EnvironmentName}");
 Console.WriteLine($"?? Navigate to the root URL to see available endpoints");
 
+// Run the application.
 app.Run();

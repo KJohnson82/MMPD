@@ -5,6 +5,10 @@ using MMPD.Data.Models;
 
 namespace MMPD.Api.Controllers
 {
+    /// <summary>
+    /// API controller for handling directory-wide data synchronization.
+    /// Provides efficient endpoints for full and incremental data syncs, primarily for the MAUI application.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class DirectoryController : ControllerBase
@@ -12,6 +16,11 @@ namespace MMPD.Api.Controllers
         private readonly AppDbContext _context;
         private readonly ILogger<DirectoryController> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the DirectoryController.
+        /// </summary>
+        /// <param name="context">The database context for data access.</param>
+        /// <param name="logger">The logger for recording operational information and errors.</param>
         public DirectoryController(AppDbContext context, ILogger<DirectoryController> logger)
         {
             _context = context;
@@ -19,9 +28,12 @@ namespace MMPD.Api.Controllers
         }
 
         /// <summary>
-        /// Full directory sync for MAUI apps - returns all location data with departments and employees
-        /// This replaces your ExportData.GenerateJson() method but is more efficient
+        /// GET: api/Directory/sync
+        /// Performs a full directory sync, returning all active locations, departments, and employees.
+        /// This is designed to be a highly efficient, single-query operation for client applications.
         /// </summary>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A comprehensive response object containing all directory data.</returns>
         [HttpGet("sync")]
         public async Task<ActionResult<DirectorySyncResponse>> GetDirectorySync([FromQuery] string? apiKey = null)
         {
@@ -30,9 +42,9 @@ namespace MMPD.Api.Controllers
 
             try
             {
-                _logger.LogInformation("Directory sync requested");
+                _logger.LogInformation("Directory sync requested at {Timestamp}", DateTime.UtcNow);
 
-                // ✅ MUCH MORE EFFICIENT - Single query with all data
+                // A single, efficient query to fetch all active locations and their related active children.
                 var allLocations = await _context.Locations
                     .Include(l => l.LocationType)
                     .Include(l => l.Departments.Where(d => d.Active == true))
@@ -43,7 +55,7 @@ namespace MMPD.Api.Controllers
                         .ThenBy(l => l.LocName)
                     .ToListAsync();
 
-                // ✅ GROUP BY LOCATION TYPE - Same structure as your ExportData
+                // Group the flat list of locations by their type to create a structured response.
                 var groupedData = allLocations
                     .GroupBy(l => l.Loctype)
                     .ToDictionary(
@@ -89,8 +101,11 @@ namespace MMPD.Api.Controllers
         }
 
         /// <summary>
-        /// Get sync status and metadata without full data transfer
+        /// GET: api/Directory/sync/status
+        /// Retrieves metadata about the directory, such as last modification time and record counts, without transferring the full dataset.
         /// </summary>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A status response with key directory metrics.</returns>
         [HttpGet("sync/status")]
         public async Task<ActionResult<SyncStatusResponse>> GetSyncStatus([FromQuery] string? apiKey = null)
         {
@@ -118,8 +133,12 @@ namespace MMPD.Api.Controllers
         }
 
         /// <summary>
-        /// Incremental sync - only returns data modified after specified timestamp
+        /// GET: api/Directory/sync/incremental
+        /// Performs an incremental sync, returning only records that have been added or modified since a specified timestamp.
         /// </summary>
+        /// <param name="since">The timestamp from which to check for changes. If null, all records are returned.</param>
+        /// <param name="apiKey">The API key for authorization.</param>
+        /// <returns>A sync response containing only the changed data.</returns>
         [HttpGet("sync/incremental")]
         public async Task<ActionResult<DirectorySyncResponse>> GetIncrementalSync(
             [FromQuery] DateTime? since = null,
@@ -133,7 +152,7 @@ namespace MMPD.Api.Controllers
                 var sinceDate = since ?? DateTime.MinValue;
                 _logger.LogInformation("Incremental sync requested since {SinceDate}", sinceDate);
 
-                // Get only records modified after the specified date
+                // Fetch only locations that have a RecordAdd timestamp greater than the 'since' date.
                 var modifiedLocations = await _context.Locations
                     .Include(l => l.LocationType)
                     .Include(l => l.Departments.Where(d => d.Active == true))
@@ -144,6 +163,7 @@ namespace MMPD.Api.Controllers
                         .ThenBy(l => l.LocName)
                     .ToListAsync();
 
+                // If no locations have been modified, return a success response with an empty data set.
                 if (!modifiedLocations.Any())
                 {
                     return Ok(new DirectorySyncResponse
@@ -156,6 +176,7 @@ namespace MMPD.Api.Controllers
                     });
                 }
 
+                // Group the modified locations by type for the response body.
                 var groupedData = modifiedLocations
                     .GroupBy(l => l.Loctype)
                     .ToDictionary(
@@ -193,8 +214,10 @@ namespace MMPD.Api.Controllers
         }
 
         /// <summary>
-        /// Health check endpoint
+        /// GET: api/Directory/health
+        /// A simple health check endpoint to verify API and database connectivity.
         /// </summary>
+        /// <returns>An object indicating the health status.</returns>
         [HttpGet("health")]
         public async Task<IActionResult> HealthCheck()
         {
@@ -224,6 +247,9 @@ namespace MMPD.Api.Controllers
 
         #region Private Helper Methods
 
+        /// <summary>
+        /// Converts a location type ID to its string representation.
+        /// </summary>
         private string GetLocationTypeName(int locationType)
         {
             return locationType switch
@@ -236,6 +262,9 @@ namespace MMPD.Api.Controllers
             };
         }
 
+        /// <summary>
+        /// Determines the most recent modification timestamp across all directory-related tables.
+        /// </summary>
         private async Task<DateTime> GetLastModifiedTimestamp()
         {
             var employeeMax = await _context.Employees
@@ -253,6 +282,9 @@ namespace MMPD.Api.Controllers
             return new[] { employeeMax, locationMax, departmentMax }.Max();
         }
 
+        /// <summary>
+        /// Calculates the total counts of active records for each main entity type.
+        /// </summary>
         private async Task<RecordCounts> GetRecordCounts()
         {
             return new RecordCounts
@@ -263,11 +295,13 @@ namespace MMPD.Api.Controllers
             };
         }
 
+        /// <summary>
+        /// Checks the database connectivity status.
+        /// </summary>
         private async Task<string> GetDatabaseVersion()
         {
             try
             {
-                // ✅ SIMPLEST SOLUTION - Just check if database is accessible
                 var canConnect = await _context.Database.CanConnectAsync();
                 return canConnect ? "Connected" : "Disconnected";
             }
@@ -277,6 +311,9 @@ namespace MMPD.Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Validates the provided API key against a list of known, valid keys.
+        /// </summary>
         private bool IsValidApiKey(string? apiKey)
         {
             if (string.IsNullOrEmpty(apiKey))
@@ -297,6 +334,9 @@ namespace MMPD.Api.Controllers
 
     #region Response Models
 
+    /// <summary>
+    /// Represents the response for a full or incremental directory sync operation.
+    /// </summary>
     public class DirectorySyncResponse
     {
         public Dictionary<string, object> Data { get; set; } = new();
@@ -306,6 +346,9 @@ namespace MMPD.Api.Controllers
         public RecordCounts RecordCounts { get; set; } = new();
     }
 
+    /// <summary>
+    /// Represents the response for a sync status check.
+    /// </summary>
     public class SyncStatusResponse
     {
         public DateTime LastModified { get; set; }
@@ -314,6 +357,9 @@ namespace MMPD.Api.Controllers
         public DateTime ServerTime { get; set; }
     }
 
+    /// <summary>
+    /// A DTO for holding the total counts of active records.
+    /// </summary>
     public class RecordCounts
     {
         public int Locations { get; set; }

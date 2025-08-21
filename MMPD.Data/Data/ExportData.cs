@@ -13,22 +13,37 @@ using System.Xml;
 
 namespace MMPD.Data.Data
 {
+    /// <summary>
+    /// Handles fetching and exporting of location, department, and employee data.
+    /// This class provides methods to query the database for different location types
+    /// and export the aggregated data to a JSON file.
+    /// </summary>
     public class ExportData
     {
         private readonly AppDbContext _context;
 
+        /// <summary>
+        /// Initializes a new instance of the ExportData class.
+        /// </summary>
+        /// <param name="context">The database context to be used for data operations.</param>
         public ExportData(AppDbContext context)
         {
             _context = context;
         }
 
         /// <summary>
-        /// ✅ SINGLE METHOD - Replaces 4 duplicate methods with 200+ lines of code
+        /// Fetches a structured list of active locations of a specific type, including their active departments and employees.
+        /// This is the primary data retrieval method, designed to be reusable for all location types.
+        /// The query eagerly loads and filters related departments and employees.
         /// </summary>
+        /// <param name="locationType">The type of location to fetch (e.g., Corporate, Plant).</param>
+        /// <returns>A dictionary containing a list of fully populated Location objects.</returns>
         public async Task<Dictionary<string, List<Location>>> FetchLocationsByTypeAsync(LocationType locationType)
         {
+            // Query the database for locations matching the specified type and active status.
             var locations = await _context.Locations
                 .Where(l => l.Loctype == (int)locationType && l.Active == true)
+                // Project the results into new Location objects to avoid over-fetching.
                 .Select(l => new Location
                 {
                     Id = l.Id,
@@ -46,6 +61,7 @@ namespace MMPD.Data.Data
                     AreaManager = l.AreaManager,
                     StoreManager = l.StoreManager,
                     Active = l.Active,
+                    // Include active departments for each location.
                     Departments = l.Departments
                         .Where(d => d.Active == true)
                         .Select(d => new Department
@@ -58,8 +74,10 @@ namespace MMPD.Data.Data
                             DeptFax = d.DeptFax,
                             Location = d.Location,
                             Active = d.Active,
+                            // Include active employees for each department.
                             Employees = d.Employees
                                 .Where(e => e.Active == true)
+                                // Sort employees alphabetically for consistent ordering.
                                 .OrderBy(e => e.FirstName)
                                 .ThenBy(e => e.LastName)
                                 .Select(e => new Employee
@@ -80,37 +98,55 @@ namespace MMPD.Data.Data
                                     Active = e.Active,
                                 }).ToList()
                         })
+                        // Sort departments alphabetically.
                         .OrderBy(d => d.DeptName)
                         .ToList()
                 })
+                // Sort locations by number, then by name.
                 .OrderBy(l => l.LocNum ?? 0)
                 .ThenBy(l => l.LocName)
                 .ToListAsync();
 
+            // Wrap the results in a dictionary for a consistent JSON structure.
             return new Dictionary<string, List<Location>> { { "locations", locations } };
         }
 
+        #region Wrapper Methods for FetchLocationsByTypeAsync
+
         /// <summary>
-        /// ✅ SIMPLIFIED - Now just calls the single method (was 50+ lines of duplicate code)
+        /// Fetches corporate location data by calling the generic fetch method.
         /// </summary>
         public async Task<Dictionary<string, List<Location>>> FetchCorpDataAsync() =>
             await FetchLocationsByTypeAsync(LocationType.Corporate);
 
+        /// <summary>
+        /// Fetches manufacturing plant location data by calling the generic fetch method.
+        /// </summary>
         public async Task<Dictionary<string, List<Location>>> FetchPlantDataAsync() =>
             await FetchLocationsByTypeAsync(LocationType.Plant);
 
+        /// <summary>
+        /// Fetches Metal Mart location data by calling the generic fetch method.
+        /// </summary>
         public async Task<Dictionary<string, List<Location>>> FetchMMDataAsync() =>
             await FetchLocationsByTypeAsync(LocationType.MetalMart);
 
+        /// <summary>
+        /// Fetches Service Center location data by calling the generic fetch method.
+        /// </summary>
         public async Task<Dictionary<string, List<Location>>> FetchSCDataAsync() =>
             await FetchLocationsByTypeAsync(LocationType.ServiceCenter);
 
+        #endregion
+
         /// <summary>
-        /// ✅ PARALLEL EXECUTION - Much faster than sequential calls
+        /// Generates a comprehensive JSON object containing data for all location types.
+        /// It executes all data fetch operations in parallel to improve performance.
         /// </summary>
+        /// <returns>A dictionary representing the final JSON structure with all location data.</returns>
         public async Task<Dictionary<string, object>> GenerateJson()
         {
-            // Execute all location type queries in parallel for better performance
+            // Create an array of tasks to fetch data for all location types concurrently.
             var tasks = new[]
             {
                 FetchLocationsByTypeAsync(LocationType.Corporate),
@@ -119,8 +155,10 @@ namespace MMPD.Data.Data
                 FetchLocationsByTypeAsync(LocationType.Plant)
             };
 
+            // Await the completion of all tasks.
             var results = await Task.WhenAll(tasks);
 
+            // Assemble the final dictionary with keys corresponding to each location type.
             return new Dictionary<string, object>
             {
                 { "loctype", new Dictionary<string, object>
@@ -135,39 +173,46 @@ namespace MMPD.Data.Data
         }
 
         /// <summary>
-        /// ✅ CONFIGURABLE - No more hardcoded file paths
+        /// Exports the generated directory data to a timestamped JSON file.
+        /// The file is saved to a specified directory or a default 'EMP_Data' folder in the user's Documents.
         /// </summary>
+        /// <param name="outputDirectory">Optional. The full path of the directory to save the file in. If null, a default path is used.</param>
+        /// <exception cref="Exception">Throws an exception if the JSON serialization or file writing fails.</exception>
         public async Task ExportJsonToFileAsync(string? outputDirectory = null)
         {
             try
             {
+                // Generate the complete data structure.
                 var jsonData = await GenerateJson();
+                // Serialize the data to an indented JSON string, ignoring null values and reference loops.
                 var jsonString = JsonConvert.SerializeObject(jsonData, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 });
 
-                // ✅ Use provided directory or default to user's Documents folder
+                // Determine the output path, using the provided directory or defaulting to a folder in MyDocuments.
                 var directoryPath = outputDirectory ??
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "EMP_Data");
 
+                // Ensure the target directory exists.
                 Directory.CreateDirectory(directoryPath);
 
+                // Create a timestamped file name to avoid overwriting previous exports.
                 var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HHmm");
                 var fileName = $"MED_Export_{timestamp}.json";
                 var filePath = Path.Combine(directoryPath, fileName);
 
+                // Write the JSON string to the file asynchronously.
                 await File.WriteAllTextAsync(filePath, jsonString);
 
                 Console.WriteLine($"JSON Export Successful. File saved at {filePath}");
             }
             catch (Exception ex)
             {
+                // Wrap and re-throw any exceptions with a more descriptive message.
                 throw new Exception($"JSON export failed: {ex.Message}", ex);
             }
         }
-
-
     }
 }
