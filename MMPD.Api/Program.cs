@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MMPD.Data.Context;
 using MMPD.Data.Data;
+using MMPD.Api.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,8 @@ builder.Services.AddScoped<ExportData>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); // Needed for OpenAPI/Swagger.
 builder.Services.AddOpenApi(); // Uses the new .NET 9 built-in OpenAPI generator.
+
+builder.Services.AddSwaggerGen();
 
 // Build the application host.
 var app = builder.Build();
@@ -114,6 +117,12 @@ if (app.Environment.IsDevelopment())
     }
 }
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+};
+
 // --- Standard Middleware ---
 app.UseHttpsRedirection(); // Redirects HTTP requests to HTTPS.
 app.UseCors("McElroyPolicy"); // Applies the CORS policy defined above.
@@ -150,6 +159,14 @@ app.MapControllers();
 Console.WriteLine($"?? McElroy Directory API starting...");
 Console.WriteLine($"?? Environment: {app.Environment.EnvironmentName}");
 Console.WriteLine($"?? Navigate to the root URL to see available endpoints");
+
+app.MapLocationEndpoints();
+
+app.MapDepartmentEndpoints();
+
+app.MapEmployeeEndpoints();
+
+app.MapLoctypeEndpoints();
 
 // Run the application.
 app.Run();

@@ -1,10 +1,14 @@
 // Required using statements for Entity Framework, application contexts, services, and web components
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MMPD.Data.Context;
 using MMPD.Data.Data;
 using MMPD.Shared.Services;
 using MMPD.Web;
 using MMPD.Web.Services;
+using MMPD.Web.Components;
+using MMPD.Web.Components.Account;
 
 // Create the web application builder with configuration from appsettings.json and command line args
 var builder = WebApplication.CreateBuilder(args);
@@ -14,13 +18,41 @@ var builder = WebApplication.CreateBuilder(args);
 // =============================================================================
 
 // Configure Blazor components with interactive server-side rendering
+//builder.Services.AddRazorComponents()
+//    .AddInteractiveServerComponents();
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents()
+    .AddInteractiveWebAssemblyComponents()
+    .AddAuthenticationStateSerialization();
 // Note: WebAssembly components are commented out - likely using Server-side Blazor only
 //.AddInteractiveWebAssemblyComponents();
 
 // Register Telerik UI for Blazor component library
 builder.Services.AddTelerikBlazor();
+
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<IdentityUserAccessor>();
+builder.Services.AddScoped<IdentityRedirectManager>();
+builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+    .AddIdentityCookies();
+
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+//Trying to get Auth working here
+
+builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    //.AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 // Configure Entity Framework database context with SQLite
 // Database file is located in the MMPD.Data project folder
@@ -69,6 +101,9 @@ app.MapStaticAssets();        // Map static assets for optimization
 // Configure Blazor component routing with server-side rendering
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// Add additional endpoints required by the Identity /Account Razor components.
+app.MapAdditionalIdentityEndpoints();
 
 // Start the web application and begin listening for requests
 app.Run();

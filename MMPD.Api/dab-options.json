@@ -1,0 +1,21 @@
+﻿{
+   "ConnectionStringName": "dab-connection-string",
+   "Dacpac": null,
+   "DatabaseType": 4,
+   "MergeDacpacs": false,
+   "ProjectPath": "D:\\Software_Development\\MMPD\\MMPD.Api",
+   "Tables": [
+      {
+         "Name": "Departments",
+         "ObjectType": 0
+      },
+      {
+         "Name": "Employees",
+         "ObjectType": 0
+      },
+      {
+         "Name": "Locations",
+         "ObjectType": 0
+      }
+   ]
+}
