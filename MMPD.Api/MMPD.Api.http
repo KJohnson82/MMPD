@@ -1,6 +1,37 @@
-@MMPD.Api_HostAddress = http://localhost:5135
+@MMPD.Api_HostAddress = http://localhost:5000
 
-GET {{MMPD.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+
+GET {{MMPD.Api_HostAddress}}/api/Department
+
+###
+
+POST {{MMPD.Api_HostAddress}}/api/Department
+
+###
+
+POST {{MMPD.Api_HostAddress}}/api/Department
+Content-Type: application/json
+
+{
+  //Department
+}
+
+###
+
+@id=0
+DELETE {{MMPD.Api_HostAddress}}/api/Department/{{id}}
+
+###
+
+GET {{MMPD.Api_HostAddress}}/api/Department/{{id}}
+
+###
+
+PUT {{MMPD.Api_HostAddress}}/api/Department/{{id}}
+Content-Type: application/json
+
+{
+  //Department
+}
 
 ###

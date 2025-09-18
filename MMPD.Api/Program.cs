@@ -26,6 +26,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 // --- Database Configuration ---
 // Registers the AppDbContext with the dependency injection container.
 builder.Services.AddDbContext<AppDbContext>(options =>
