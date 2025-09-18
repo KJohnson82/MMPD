@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
+    <PackageReference Include="Telerik.UI.for.Blazor" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Folder Include="Pages\MetalMart\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MMPD.Data\MMPD.Data.csproj" />
+  </ItemGroup>
+
+</Project>

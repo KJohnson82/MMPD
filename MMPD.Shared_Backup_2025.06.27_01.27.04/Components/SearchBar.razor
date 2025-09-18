@@ -1,0 +1,42 @@
+﻿@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using Microsoft.AspNetCore.Components
+@using MMPD.Shared.Components
+
+<TelerikAppBar ThemeColor="@ThemeConstants.AppBar.ThemeColor.Inverse"
+               Height="65px"
+               Position="AppBarPosition.None">
+
+    @if (ShowBackButton)
+    {
+        <AppBarSection>
+            <BackButton>
+                <span class="k-font-size-lg k-font-bold">BACK</span>
+            </BackButton>
+        </AppBarSection>
+    }
+
+    <AppBarSection class="k-d-flex k-align-items-center k-flex-grow">
+        <TelerikTextBox Rounded="lg"
+                        Class="k-w-full"
+                        Width="100%"
+                        Size="@ThemeConstants.TextBox.Size.Large"
+                        Placeholder="Search..." />
+    </AppBarSection>
+
+    <AppBarSection>
+        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                       Class="k-p-6"
+                       Size="@ThemeConstants.Button.Size.Large"
+                       Icon="@SvgIcon.Search"
+                       FillMode="@ThemeConstants.Button.FillMode.Solid"
+                       ButtonType="ButtonType.Button" />
+    </AppBarSection>
+
+</TelerikAppBar>
+
+@code {
+    [Parameter]
+    public bool ShowBackButton { get; set; } = true;
+}
