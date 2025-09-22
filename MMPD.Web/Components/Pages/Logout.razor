@@ -1,0 +1,57 @@
+﻿@page "/logout"
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using Microsoft.AspNetCore.Authentication
+@using Auth0.AspNetCore.Authentication
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+<div class="logout-container">
+    <TelerikWindow Modal="true"
+                   Visible="true"
+                   Width="400px"
+                   Height="200px"
+                   Centered="true">
+        <WindowTitle>
+            <TelerikIcon Icon="@SvgIcon.Logout" /> Logging out...
+        </WindowTitle>
+        <WindowContent>
+            <div class="logout-content">
+                <TelerikLoader Size="Large" />
+                <p>You are being logged out. Please wait...</p>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+</div>
+
+<style>
+    .logout-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .logout-content {
+        padding: 2rem;
+        text-align: center;
+    }
+</style>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var context = HttpContextAccessor.HttpContext;
+        if (context is not null)
+        {
+            var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
+                .WithRedirectUri("/")
+                .Build();
+
+            await context.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+            await context.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+        NavigationManager.NavigateTo("/", true);
+    }
+}

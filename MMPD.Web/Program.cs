@@ -1,4 +1,5 @@
 // Required using statements for Entity Framework, application contexts, services, and web components
+using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +7,9 @@ using MMPD.Data.Context;
 using MMPD.Data.Data;
 using MMPD.Shared.Services;
 using MMPD.Web;
-using MMPD.Web.Services;
 using MMPD.Web.Components;
 using MMPD.Web.Components.Account;
+using MMPD.Web.Services;
 
 // Create the web application builder with configuration from appsettings.json and command line args
 var builder = WebApplication.CreateBuilder(args);
@@ -69,6 +70,14 @@ builder.Services.AddScoped<ExportData>(); // Data export functionality
 // Singleton lifetime ensures same instance across the application
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
+builder.Services.AddAuth0WebAppAuthentication(options =>
+{
+    options.Domain = builder.Configuration["Auth0:Domain"];
+    options.ClientId = builder.Configuration["Auth0:ClientId"];
+});
+
+builder.Services.AddHttpContextAccessor();
+
 // Build the configured application
 var app = builder.Build();
 
@@ -97,6 +106,8 @@ app.UseHttpsRedirection();    // Redirect HTTP requests to HTTPS
 app.UseStaticFiles();         // Serve static files (CSS, JS, images, etc.)
 app.UseAntiforgery();         // CSRF protection for forms
 app.MapStaticAssets();        // Map static assets for optimization
+app.UseAuthentication(); // Enable authentication
+app.UseAuthorization();  // Enable authorization
 
 // Configure Blazor component routing with server-side rendering
 app.MapRazorComponents<App>()

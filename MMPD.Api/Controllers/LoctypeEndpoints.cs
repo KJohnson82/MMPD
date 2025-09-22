@@ -29,36 +29,36 @@ public static class LoctypeEndpoints
         .WithName("GetLoctypeById")
         .WithOpenApi();
 
-        group.MapPut("/{id}", async Task<Results<Ok, NotFound>> (int id, Loctype loctype, AppDbContext db) =>
-        {
-            var affected = await db.Loctypes
-                .Where(model => model.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(m => m.Id, loctype.Id)
-                    .SetProperty(m => m.LoctypeName, loctype.LoctypeName)
-                    );
-            return affected == 1 ? TypedResults.Ok() : TypedResults.NotFound();
-        })
-        .WithName("UpdateLoctype")
-        .WithOpenApi();
+        //group.MapPut("/{id}", async Task<Results<Ok, NotFound>> (int id, Loctype loctype, AppDbContext db) =>
+        //{
+        //    var affected = await db.Loctypes
+        //        .Where(model => model.Id == id)
+        //        .ExecuteUpdateAsync(setters => setters
+        //            .SetProperty(m => m.Id, loctype.Id)
+        //            .SetProperty(m => m.LoctypeName, loctype.LoctypeName)
+        //            );
+        //    return affected == 1 ? TypedResults.Ok() : TypedResults.NotFound();
+        //})
+        //.WithName("UpdateLoctype")
+        //.WithOpenApi();
 
-        group.MapPost("/", async (Loctype loctype, AppDbContext db) =>
-        {
-            db.Loctypes.Add(loctype);
-            await db.SaveChangesAsync();
-            return TypedResults.Created($"/api/Loctype/{loctype.Id}",loctype);
-        })
-        .WithName("CreateLoctype")
-        .WithOpenApi();
+        //group.MapPost("/", async (Loctype loctype, AppDbContext db) =>
+        //{
+        //    db.Loctypes.Add(loctype);
+        //    await db.SaveChangesAsync();
+        //    return TypedResults.Created($"/api/Loctype/{loctype.Id}",loctype);
+        //})
+        //.WithName("CreateLoctype")
+        //.WithOpenApi();
 
-        group.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (int id, AppDbContext db) =>
-        {
-            var affected = await db.Loctypes
-                .Where(model => model.Id == id)
-                .ExecuteDeleteAsync();
-            return affected == 1 ? TypedResults.Ok() : TypedResults.NotFound();
-        })
-        .WithName("DeleteLoctype")
-        .WithOpenApi();
+        //group.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (int id, AppDbContext db) =>
+        //{
+        //    var affected = await db.Loctypes
+        //        .Where(model => model.Id == id)
+        //        .ExecuteDeleteAsync();
+        //    return affected == 1 ? TypedResults.Ok() : TypedResults.NotFound();
+        //})
+        //.WithName("DeleteLoctype")
+        //.WithOpenApi();
     }
 }

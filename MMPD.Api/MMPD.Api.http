@@ -1,6 +1,215 @@
-@MMPD.Api_HostAddress = http://localhost:5135
+@MMPD.Api_HostAddress = http://localhost:5000
 
-GET {{MMPD.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+//Health
+
+
+GET {{MMPD.Api_HostAddress}}/health
 
 ###
+
+
+//Department
+GET {{MMPD.Api_HostAddress}}/api/Department
+
+###
+
+@id=1
+POST {{MMPD.Api_HostAddress}}/api/Department
+Content-Type: application/json
+
+{
+  "id": 1,
+    "deptName": "Test",
+    "location": 1,
+    "deptManager": "Howell Hicks",
+    "deptPhone": "866-634-5111",
+    "deptEmail": "i.t.dept@mcelroymetal.com",
+    "deptFax": "",
+    "recordAdd": "2024-11-20T00:00:00",
+    "active": true,
+    "employees": [],
+    "deptLocation": null
+}
+
+###
+
+@id=2
+GET {{MMPD.Api_HostAddress}}/api/Department/{{id}}
+
+###
+
+@id=1
+PUT {{MMPD.Api_HostAddress}}/api/Department/{{id}}
+Content-Type: application/json
+
+{
+  "id": 1,
+    "deptName": "Test2",
+    "location": 1,
+    "deptManager": "Howell Hicks",
+    "deptPhone": "866-634-5111",
+    "deptEmail": "i.t.dept@mcelroymetal.com",
+    "deptFax": "",
+    "recordAdd": "2024-11-20T00:00:00",
+    "active": true,
+    "employees": [],
+    "deptLocation": null
+}
+
+###
+
+@id=1
+DELETE {{MMPD.Api_HostAddress}}/api/Department/{{id}}
+
+###
+
+//Location
+
+GET {{MMPD.Api_HostAddress}}/api/Location
+
+###
+
+POST {{MMPD.Api_HostAddress}}/api/Location
+Content-Type: application/json
+
+{
+  "id": 89,
+    "locName": "Service Center Test",
+    "locNum": 999,
+    "address": "Test",
+    "city": "Test",
+    "state": "LA",
+    "zipcode": "78634",
+    "phoneNumber": "555-555-5555",
+    "faxNumber": "",
+    "email": "test@mcelroymetal.com",
+    "hours": "M-F 8-5",
+    "loctype": 3,
+    "areaManager": "Test",
+    "storeManager": "Test",
+    "recordAdd": null,
+    "active": true,
+    "departments": [],
+    "employees": [],
+    "locationType": null
+}
+
+###
+
+@id=89
+GET {{MMPD.Api_HostAddress}}/api/Location/{{id}}
+
+###
+
+PUT {{MMPD.Api_HostAddress}}/api/Location/{{id}}
+Content-Type: application/json
+
+{
+  "id": 89,
+    "locName": "Service Center Test UPDATE",
+    "locNum": 999,
+    "address": "Test",
+    "city": "Test",
+    "state": "LA",
+    "zipcode": "78634",
+    "phoneNumber": "555-555-5555",
+    "faxNumber": "",
+    "email": "test@mcelroymetal.com",
+    "hours": "M-F 8-5",
+    "loctype": 3,
+    "areaManager": "Test",
+    "storeManager": "Test",
+    "recordAdd": null,
+    "active": true,
+    "departments": [],
+    "employees": [],
+    "locationType": null
+}
+
+###
+
+@id=89
+DELETE {{MMPD.Api_HostAddress}}/api/Location/{{id}}
+
+###
+
+
+//Employee
+
+
+GET {{MMPD.Api_HostAddress}}/api/Employee
+
+###
+
+
+POST {{MMPD.Api_HostAddress}}/api/Employee
+Content-Type: application/json
+
+{
+  "id": 18,
+    "firstName": "Test",
+    "lastName": "Test",
+    "jobTitle": "Test",
+    "isManager": true,
+    "phoneNumber": "555-555-5555",
+    "cellNumber": "",
+    "extension": "5555",
+    "email": "asweet@mcelroymetal.com",
+    "networkId": "",
+    "empAvatar": "",
+    "location": 2,
+    "department": 15,
+    "recordAdd": "2024-11-22T13:57:16.0300957",
+    "active": true,
+    "empDepartment": null,
+    "empLocation": null
+}
+
+###
+
+
+@id=18
+GET {{MMPD.Api_HostAddress}}/api/Employee/{{id}}
+
+###
+
+
+
+PUT {{MMPD.Api_HostAddress}}/api/Employee/{{id}}
+Content-Type: application/json
+
+{
+  "id": 18,
+    "firstName": "Test UPDATE",
+    "lastName": "Test UPDATE",
+    "jobTitle": "Test",
+    "isManager": true,
+    "phoneNumber": "555-555-5555",
+    "cellNumber": "",
+    "extension": "5555",
+    "email": "asweet@mcelroymetal.com",
+    "networkId": "",
+    "empAvatar": "",
+    "location": 2,
+    "department": 15,
+    "recordAdd": "2024-11-22T13:57:16.0300957",
+    "active": true,
+    "empDepartment": null,
+    "empLocation": null
+}
+
+###
+
+@id=18
+DELETE {{MMPD.Api_HostAddress}}/api/Employee/{{id}}
+
+###
+
+
+//LocType
+
+
+GET {{MMPD.Api_HostAddress}}/api/Loctype
+
+###
+

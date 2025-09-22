@@ -1,0 +1,78 @@
+﻿@page "/login"
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+@using MMPD.Data.Data
+@using Microsoft.AspNetCore.Authentication
+@using Auth0.AspNetCore.Authentication
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+
+<div class="login-container">
+    <TelerikWindow Modal="true"
+                   @bind-Visible="@isModalVisible"
+                   Width="400px"
+                   Height="300px"
+                   Centered="true">
+        <WindowTitle>
+            <TelerikIcon Icon="@SvgIcon.Lock" /> Login
+        </WindowTitle>
+        <WindowContent>
+            <div class="login-content">
+                <TelerikForm Model="@loginModel"
+                            OnSubmit="@HandleLogin">
+                    <FormItems>
+                        <TelerikButton ThemeColor="primary" 
+                                     Size="@ThemeConstants.Button.Size.Large"
+                                     Icon="@SvgIcon.Login"
+                                     OnClick="@LoginWithAuth0"
+                                     Width="100%">
+                            Login with Auth0
+                        </TelerikButton>
+                    </FormItems>
+                </TelerikForm>
+            </div>
+        </WindowContent>
+        <WindowActions>
+            <WindowAction Name="Close" />
+        </WindowActions>
+    </TelerikWindow>
+</div>
+
+<style>
+    .login-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-content {
+        padding: 2rem;
+    }
+</style>
+
+@code {
+    private bool isModalVisible { get; set; } = true;
+    private LoginModel loginModel = new();
+
+    private class LoginModel
+    {
+        public string RedirectUri { get; set; } = "/";
+    }
+
+    private async Task LoginWithAuth0()
+    {
+        var properties = new LoginAuthenticationPropertiesBuilder()
+            .WithRedirectUri(loginModel.RedirectUri)
+            .Build();
+
+        NavigationManager.NavigateTo($"Account/Login?returnUrl={Uri.EscapeDataString(loginModel.RedirectUri)}", true);
+    }
+
+    private async Task HandleLogin()
+    {
+        await LoginWithAuth0();
+    }
+}

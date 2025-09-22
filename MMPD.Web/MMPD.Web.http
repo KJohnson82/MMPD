@@ -1,0 +1,19 @@
+﻿@MMPD.Web_HostAddress = https://localhost:7141
+
+@returnUrl=string
+POST {{MMPD.Web_HostAddress}}/Account/Logout?returnUrl={{returnUrl}}
+
+###
+
+POST {{MMPD.Web_HostAddress}}/Account/Manage/DownloadPersonalData
+
+###
+
+@provider=string
+POST {{MMPD.Web_HostAddress}}/Account/Manage/LinkExternalLogin?provider={{provider}}
+
+###
+
+POST {{MMPD.Web_HostAddress}}/Account/PerformExternalLogin?provider={{provider}}&returnUrl={{returnUrl}}
+
+###
