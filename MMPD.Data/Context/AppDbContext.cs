@@ -1,6 +1,7 @@
 ﻿#nullable disable
-
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MMPD.Data.Data;
 using MMPD.Data.Models;
 
 namespace MMPD.Data.Context
@@ -10,6 +11,7 @@ namespace MMPD.Data.Context
     /// This class is the main entry point for querying and saving data using Entity Framework Core.
     /// It defines the entity sets (DbSet) that correspond to tables in the database.
     /// </summary>
+    //public partial class AppDbContext : DbContext
     public partial class AppDbContext : DbContext
     {
         /// <summary>
@@ -48,6 +50,18 @@ namespace MMPD.Data.Context
         public virtual DbSet<Loctype> Loctypes { get; set; }
 
         #endregion
+
+        /// <summary>
+        /// Represents the 'UserAccount' table in the database.
+        /// Used to query and manage user authentication.
+        /// </summary>
+        public virtual DbSet<UserAccount> UserAccounts { get; set; }
+
+        /// <summary>
+        /// Represents the 'UserRoles' table in the database.
+        /// Used to query and manage user roles.
+        /// </summary>
+        public virtual DbSet<UserRole> UserRoles { get; set; }
 
         /// <summary>
         /// Configures the database model using the Fluent API.
@@ -101,6 +115,34 @@ namespace MMPD.Data.Context
                 // Define the relationship: a Location has one LocationType.
                 // The foreign key is the 'Loctype' property in the Location entity.
                 entity.HasOne(d => d.LocationType).WithMany(p => p.Locations).HasForeignKey(d => d.Loctype);
+            });
+
+            // ===== USER AUTHENTICATION CONFIGURATION =====
+
+            // UserRoles configuration
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.ToTable("UserRoles");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Role).IsRequired().HasMaxLength(30);
+                entity.HasIndex(e => e.Role).IsUnique();
+            });
+
+            // UserAccount configuration
+            modelBuilder.Entity<UserAccount>(entity =>
+            {
+                entity.ToTable("UserAccount");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Password).IsRequired().HasMaxLength(30);
+                entity.Property(e => e.RoleId).HasDefaultValue(3);
+                entity.Property(e => e.Active).HasDefaultValue(false);
+
+                // Foreign key relationship
+                entity.HasOne(u => u.UserRole)
+                    .WithMany(r => r.UserAccounts)
+                    .HasForeignKey(u => u.RoleId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Call the partial method to allow for further model configuration in another file.

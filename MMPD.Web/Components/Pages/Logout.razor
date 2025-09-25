@@ -1,57 +1,48 @@
 ﻿@page "/logout"
-@using Telerik.Blazor
+@using MMPD.Web.Services
 @using Telerik.Blazor.Components
 @using Telerik.SvgIcons
-@using Microsoft.AspNetCore.Authentication
-@using Auth0.AspNetCore.Authentication
+
+@inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 @inject IHttpContextAccessor HttpContextAccessor
 
-<div class="logout-container">
-    <TelerikWindow Modal="true"
-                   Visible="true"
-                   Width="400px"
-                   Height="200px"
-                   Centered="true">
-        <WindowTitle>
-            <TelerikIcon Icon="@SvgIcon.Logout" /> Logging out...
-        </WindowTitle>
-        <WindowContent>
-            <div class="logout-content">
-                <TelerikLoader Size="Large" />
-                <p>You are being logged out. Please wait...</p>
-            </div>
-        </WindowContent>
-    </TelerikWindow>
-</div>
-
-<style>
-    .logout-container {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .logout-content {
-        padding: 2rem;
-        text-align: center;
-    }
-</style>
+<TelerikWindow Modal="true"
+               Visible="true"
+               Width="300px"
+               Height="150px">
+    <WindowTitle>
+        <TelerikSvgIcon Icon="@SvgIcon.Logout" /> Signing Out
+    </WindowTitle>
+    <WindowContent>
+        <div class="text-center p-3">
+            <TelerikLoader Size="Large" />
+            <p class="mt-2">Signing you out...</p>
+        </div>
+    </WindowContent>
+</TelerikWindow>
 
 @code {
     protected override async Task OnInitializedAsync()
     {
-        var context = HttpContextAccessor.HttpContext;
-        if (context is not null)
+        try
         {
-            var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
-                .WithRedirectUri("/")
-                .Build();
-
-            await context.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
-            await context.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+            var httpContext = HttpContextAccessor.HttpContext;
+            if (httpContext != null)
+            {
+                await AuthService.LogoutAsync(httpContext);
+            }
+            
+            // Add a small delay for better UX
+            await Task.Delay(1000);
         }
-        NavigationManager.NavigateTo("/", true);
+        catch (Exception)
+        {
+            // Handle logout errors gracefully
+        }
+        finally
+        {
+            NavigationManager.NavigateTo("/", true);
+        }
     }
 }

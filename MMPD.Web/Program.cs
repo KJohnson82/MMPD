@@ -1,5 +1,4 @@
 // Required using statements for Entity Framework, application contexts, services, and web components
-using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,41 +18,14 @@ var builder = WebApplication.CreateBuilder(args);
 // =============================================================================
 
 // Configure Blazor components with interactive server-side rendering
-//builder.Services.AddRazorComponents()
-//    .AddInteractiveServerComponents();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents()
-    .AddAuthenticationStateSerialization();
-// Note: WebAssembly components are commented out - likely using Server-side Blazor only
-//.AddInteractiveWebAssemblyComponents();
+    .AddInteractiveWebAssemblyComponents();
 
 // Register Telerik UI for Blazor component library
 builder.Services.AddTelerikBlazor();
 
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<IdentityUserAccessor>();
-builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-})
-    .AddIdentityCookies();
-
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-//Trying to get Auth working here
-
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    //.AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddSignInManager()
-    .AddDefaultTokenProviders();
-
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 // Configure Entity Framework database context with SQLite
 // Database file is located in the MMPD.Data project folder
@@ -61,6 +33,40 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite("Data Source=../MMPD.Data/Data/mcelroy_directory.db");
 });
+
+builder.Services.AddAuthentication()
+    .AddCookie(options =>
+{
+    options.LoginPath = "/login";
+    options.LogoutPath = "/logout";
+    options.AccessDeniedPath = "/error";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
+    options.SlidingExpiration = true;
+});
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Administrator", policy => policy.RequireRole("Administrator"))
+    .AddPolicy("User", policy => policy.RequireRole("User"))
+    .AddPolicy("Viewer", policy => policy.RequireRole("Viewer"))
+    .AddPolicy("UserOrAbove", policy => policy.RequireRole("User", "Administrator"))
+    .AddPolicy("AdminOnly", policy => policy.RequireRole("Administrator"));
+
+//builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+//{
+//    options.SignIn.RequireConfirmedAccount = false;
+//    options.Password.RequireNonAlphanumeric = false;
+//    options.Password.RequireUppercase = false;
+//    options.Password.RequireLowercase = false;
+//    options.Password.RequiredLength = 6;
+
+//    options.SignIn.RequireConfirmedEmail = false;
+//    options.User.RequireUniqueEmail = true;
+//    options.Lockout.MaxFailedAccessAttempts = 5;
+//})
+//    .AddEntityFrameworkStores<AppDbContext>()
+//    .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Register application-specific services for dependency injection
 builder.Services.AddScoped<IDirectoryService, DirectoryService>(); // Directory management service
@@ -70,11 +76,6 @@ builder.Services.AddScoped<ExportData>(); // Data export functionality
 // Singleton lifetime ensures same instance across the application
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
-builder.Services.AddAuth0WebAppAuthentication(options =>
-{
-    options.Domain = builder.Configuration["Auth0:Domain"];
-    options.ClientId = builder.Configuration["Auth0:ClientId"];
-});
 
 builder.Services.AddHttpContextAccessor();
 

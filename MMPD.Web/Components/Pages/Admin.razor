@@ -1,0 +1,198 @@
+﻿@page "/Admin"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Telerik.Blazor.Components
+@using Telerik.SvgIcons
+
+@attribute [Authorize]
+
+<PageTitle>Dashboard - MMPD</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <TelerikSvgIcon Icon="@SvgIcon.UsersSolid" /> Admin Dashboard
+            </h2>
+        </div>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <TelerikCard>
+                <CardHeader>
+                    <TelerikSvgIcon Icon="@SvgIcon.User" /> Current User Information
+                </CardHeader>
+                <CardBody>
+                    <AuthorizeView>
+                        <Authorized>
+                            <div class="user-info">
+                                <p><strong>Username:</strong> @context.User.Identity!.Name</p>
+                                <p><strong>Role:</strong> 
+                                    @foreach (var role in context.User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role))
+                                    {
+                                        @if (role.Value == "Administrator")
+                                        {
+                                            <span class="badge bg-danger">@role.Value</span>
+                                        }
+                                        else if (role.Value == "User")
+                                        {
+                                            <span class="badge bg-success">@role.Value</span>
+                                        }
+                                        else if (role.Value == "Viewer")
+                                        {
+                                            <span class="badge bg-info">@role.Value</span>
+                                        }
+                                    }
+                                </p>
+                                <p><strong>Authentication Type:</strong> @context.User.Identity.AuthenticationType</p>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
+                </CardBody>
+            </TelerikCard>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Administrator Only Section -->
+        <AuthorizeView Roles="Administrator">
+            <Authorized>
+                <div class="col-md-4 mb-4">
+                    <TelerikCard>
+                        <CardHeader>
+                            <TelerikSvgIcon Icon="@SvgIcon.UsersSolid" /> Administrator Panel
+                        </CardHeader>
+                        <CardBody>
+                            <TelerikNotification ThemeColor="warning" Visible="true" Class="mb-3">
+                                <strong>Admin Access:</strong> Full system control
+                            </TelerikNotification>
+                            
+                            <div class="d-grid gap-2">
+                                <TelerikButton ThemeColor="danger" Icon="@SvgIcon.Trash">
+                                    Delete Records
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="warning" Icon="@SvgIcon.Gear">
+                                    System Settings
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="info" Icon="@SvgIcon.User">
+                                    Manage Users
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="secondary" Icon="@SvgIcon.FileReport">
+                                    Admin Reports
+                                </TelerikButton>
+                            </div>
+                        </CardBody>
+                    </TelerikCard>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        <!-- User and Administrator Section -->
+        <AuthorizeView Roles="User,Administrator">
+            <Authorized>
+                <div class="col-md-4 mb-4">
+                    <TelerikCard>
+                        <CardHeader>
+                            <TelerikSvgIcon Icon="@SvgIcon.Pencil" /> User Features
+                        </CardHeader>
+                        <CardBody>
+                            <p>Features available to Users and Administrators:</p>
+                            
+                            <div class="d-grid gap-2">
+                                <TelerikButton ThemeColor="success" Icon="@SvgIcon.Plus">
+                                    Create Employee
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="primary" Icon="@SvgIcon.EditTools">
+                                    Edit Records
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="info" Icon="@SvgIcon.FileReport">
+                                    Generate Reports
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="secondary" Icon="@SvgIcon.Download">
+                                    Export Data
+                                </TelerikButton>
+                            </div>
+                        </CardBody>
+                    </TelerikCard>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        <!-- All Authenticated Users (Viewer, User, Administrator) -->
+        <AuthorizeView>
+            <Authorized>
+                <div class="col-md-4 mb-4">
+                    <TelerikCard>
+                        <CardHeader>
+                            <TelerikSvgIcon Icon="@SvgIcon.Eye" /> Viewer Features
+                        </CardHeader>
+                        <CardBody>
+                            <p>Features available to all authenticated users:</p>
+                            
+                            <div class="d-grid gap-2">
+                                <TelerikButton ThemeColor="info" Icon="@SvgIcon.Grid"
+                                               OnClick="@(() => NavigationManager.NavigateTo("/employees"))">
+                                    View Employees
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="info" Icon="@SvgIcon.Grid"
+                                               OnClick="@(() => NavigationManager.NavigateTo("/departments"))">
+                                    View Departments
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="secondary" Icon="@SvgIcon.Search">
+                                    Search Directory
+                                </TelerikButton>
+                                <TelerikButton ThemeColor="light" Icon="@SvgIcon.Print">
+                                    Print Views
+                                </TelerikButton>
+                            </div>
+                        </CardBody>
+                    </TelerikCard>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+
+    <!-- Viewer Only Section -->
+    <AuthorizeView Roles="Viewer">
+        <Authorized>
+            <div class="row">
+                <div class="col-12">
+                    <TelerikNotification ThemeColor="info" Visible="true">
+                        <TelerikSvgIcon Icon="@SvgIcon.InfoCircle" />
+                        <strong>Viewer Access:</strong> You have read-only access to the system. 
+                        Contact an administrator to request additional permissions.
+                    </TelerikNotification>
+                </div>
+            </div>
+        </Authorized>
+    </AuthorizeView>
+
+    <!-- Navigation -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <TelerikButton OnClick="@(() => NavigationManager.NavigateTo("/"))" 
+                           Icon="@SvgIcon.Home">
+                Back to Home
+            </TelerikButton>
+        </div>
+    </div>
+</div>
+
+@inject NavigationManager NavigationManager
+
+<style>
+    .user-info p {
+        margin-bottom: 0.5rem;
+    }
+    
+    .badge {
+        font-size: 0.9em;
+        padding: 0.3em 0.6em;
+    }
+    
+    .bg-danger { background-color: #dc3545 !important; }
+    .bg-success { background-color: #28a745 !important; }
+    .bg-info { background-color: #17a2b8 !important; }
+</style>
