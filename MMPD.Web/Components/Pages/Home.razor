@@ -5,6 +5,7 @@
 @* ===================================================================== *@
 
 @* Define the route for this page component *@
+@rendermode InteractiveServer
 @page "/Home"
 
 @* Import necessary namespaces for Telerik components and application data models *@
@@ -21,6 +22,7 @@
 @* Set the browser page title *@
 <PageTitle>Home</PageTitle>
 
+<RequireAuth>
 @* ===================================================================== *@
 @* PAGE HEADER - Consistent header with title and icon                   *@
 @* ===================================================================== *@
@@ -98,6 +100,11 @@
         </TileLayoutItems>
     </TelerikTileLayout>
 </div>
+    @* <div class="alert alert-success">
+        <h4>✅ You're logged in!</h4>
+        <p>You now have full access to the application.</p>
+    </div> *@
+</RequireAuth>
 
 @* ===================================================================== *@
 @* COMPONENT STYLES - Dashboard and tile styling                         *@
@@ -133,31 +140,3 @@
         letter-spacing: 1px; /* Slight letter spacing for readability */
     }
 </style>
-
-@* ===================================================================== *@
-@* DASHBOARD LAYOUT EXPLANATION                                           *@
-@* ===================================================================== *@
-@*
-DASHBOARD GRID LAYOUT (3 columns):
-
-┌─────────────────┬─────────────────┬─────────────────┐
-│ Newest          │ Newest          │ Newest          │
-│ Employees       │ Departments     │ Locations       │
-│ (1x1)           │ (1x1)           │ (1x1)           │
-├─────────────────┼─────────────────┴─────────────────┤
-│ Location        │ Employee Count Per Department     │
-│ Count           │ (2x2 - Chart/Graph)               │
-│ (1x2)           │                                   │
-│                 │                                   │
-└─────────────────┴───────────────────────────────────┘
-
-TILE PURPOSES:
-- Top Row: Quick access to recently added data (employees, departments, locations)
-- Bottom Left: Total location count (vertical tile for emphasis)
-- Bottom Right: Employee distribution visualization (large area for chart/graph)
-
-RESPONSIVE DESIGN:
-- Layout adapts to screen size via Telerik responsive features
-- Vertical centering only applies on screens with sufficient height
-- Consistent spacing and professional appearance across devices
-*@

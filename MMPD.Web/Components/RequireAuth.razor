@@ -1,0 +1,171 @@
+﻿@* ===================================================================== *@
+@* REQUIRE AUTH COMPONENT - Authorization Wrapper                        *@
+@* This is a reusable component that protects pages from unauthorized    *@
+@* access. Wrap any page content in <RequireAuth> to make it secure.     *@
+@* ===================================================================== *@
+
+@* Import the authentication service namespace *@
+@using MMPD.Web.Services
+
+@* Inject the authentication service - lets us check if user is logged in *@
+@inject IAuthService AuthService
+
+@* Inject navigation manager - lets us redirect to login page *@
+@inject NavigationManager Navigation
+
+@* CRITICAL: Makes this component interactive (required for navigation) *@
+@* Without this, the NavigateTo call would fail with an exception *@
+@rendermode InteractiveServer
+
+@* ===================================================================== *@
+@* CONDITIONAL RENDERING - Show different content based on auth state    *@
+@* ===================================================================== *@
+
+@* If the user is authenticated (logged in), show the protected content *@
+@if (isAuthenticated)
+{
+    @* ChildContent is whatever was wrapped inside <RequireAuth>...</RequireAuth> *@
+    @* This renders the protected page content *@
+    @ChildContent
+}
+@* If we're still checking authentication status, show a loading message *@
+else if (isChecking)
+{
+    <div class="auth-checking">
+        <p>Checking authentication...</p>
+    </div>
+}
+@* Note: If not authenticated AND not checking, we show nothing *@
+@* The user will be redirected to /login in OnAfterRender *@
+
+@code {
+    // ===================================================================
+    // COMPONENT PARAMETERS - Data passed to this component
+    // ===================================================================
+    
+    // [Parameter] makes this a component parameter that can receive content
+    // RenderFragment is a piece of Blazor UI that can be rendered
+    // ChildContent is a special parameter name that captures everything between
+    // the opening and closing tags: <RequireAuth>THIS CONTENT</RequireAuth>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    // ===================================================================
+    // COMPONENT STATE - Variables that track authentication status
+    // ===================================================================
+    
+    // Tracks whether the current user is authenticated (logged in)
+    private bool isAuthenticated = false;
+    
+    // Tracks whether we're still checking authentication status
+    // Starts as true, set to false after check completes
+    private bool isChecking = true;
+
+    // ===================================================================
+    // LIFECYCLE METHOD: OnInitializedAsync
+    // ===================================================================
+    // This runs when the component first loads
+    // We check if the user is authenticated here
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Call the auth service to check if user is logged in
+            // This reads from encrypted session storage
+            isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        }
+        catch
+        {
+            // If checking auth fails (e.g., during prerendering or storage unavailable)
+            // Assume user is not authenticated
+            isAuthenticated = false;
+        }
+        
+        // Done checking - this will hide the "Checking authentication..." message
+        isChecking = false;
+    }
+
+    // ===================================================================
+    // LIFECYCLE METHOD: OnAfterRender
+    // ===================================================================
+    // This runs AFTER the component has been rendered in the browser
+    // We navigate here instead of OnInitializedAsync to avoid NavigationException
+    // 
+    // WHY OnAfterRender and not OnInitializedAsync?
+    // - OnInitializedAsync runs during server-side prerendering
+    // - Navigation during prerendering causes NavigationException
+    // - OnAfterRender only runs after the component is interactive
+    // - At this point, navigation is safe and works correctly
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // firstRender = true only the FIRST time this method runs
+        // We only want to redirect once, not on every re-render
+        if (firstRender && !isAuthenticated)
+        {
+            // User is not authenticated - send them to the login page
+            Navigation.NavigateTo("/login");
+        }
+    }
+}
+
+// ===================================================================
+// USAGE EXAMPLE
+// ===================================================================
+/*
+ * HOW TO USE THIS COMPONENT:
+ * 
+ * In any page you want to protect, wrap your content like this:
+ * 
+ * @* @page "/Home" *@
+ * 
+ * @* <RequireAuth>
+ *     <h1>Protected Content</h1>
+ *     <p>Only logged-in users can see this!</p>
+ *     <LogoutButton />
+ * </RequireAuth> *@
+ * 
+ * 
+ * WHAT HAPPENS:
+ * 
+ * 1. Component loads and renders
+ * 2. Shows "Checking authentication..." message
+ * 3. Checks if user is logged in (reads session storage)
+ * 4. If logged in:
+ *    - isAuthenticated = true
+ *    - Renders the ChildContent (your protected page)
+ * 5. If NOT logged in:
+ *    - isAuthenticated = false
+ *    - Shows nothing (blank screen briefly)
+ *    - Redirects to /login in OnAfterRender
+ * 
+ * 
+ * COMPONENT LIFECYCLE (in order):
+ * 
+ * 1. OnInitializedAsync() runs
+ *    - Checks authentication status
+ *    - Sets isAuthenticated = true/false
+ *    - Sets isChecking = false
+ * 
+ * 2. Component renders based on state
+ *    - If isAuthenticated = true: shows ChildContent
+ *    - If isChecking = true: shows "Checking..." message
+ *    - If neither: shows nothing
+ * 
+ * 3. OnAfterRender(firstRender: true) runs
+ *    - If not authenticated: redirects to /login
+ * 
+ * 
+ * WHY USE A WRAPPER COMPONENT?
+ * 
+ * - Reusable: Write once, use on every protected page
+ * - Consistent: Same auth behavior across entire app
+ * - Clean: Pages don't need their own auth logic
+ * - Maintainable: Change auth logic in one place
+ * 
+ * 
+ * SECURITY NOTE:
+ * 
+ * This provides UI-level protection only. For API endpoints,
+ * you need separate server-side authorization. This component
+ * prevents users from seeing pages, but doesn't secure API calls.
+ */

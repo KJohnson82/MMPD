@@ -22,38 +22,36 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddRazorComponents()
 //    .AddInteractiveServerComponents();
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents()
-    .AddAuthenticationStateSerialization();
-// Note: WebAssembly components are commented out - likely using Server-side Blazor only
-//.AddInteractiveWebAssemblyComponents();
+    .AddInteractiveServerComponents();
 
 // Register Telerik UI for Blazor component library
 builder.Services.AddTelerikBlazor();
 
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<IdentityUserAccessor>();
-builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-})
-    .AddIdentityCookies();
+//builder.Services.AddCascadingAuthenticationState();
+//builder.Services.AddScoped<IdentityUserAccessor>();
+//builder.Services.AddScoped<IdentityRedirectManager>();
+//builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+//    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+//})
+//    .AddIdentityCookies();
+
+//builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 //Trying to get Auth working here
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    //.AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddSignInManager()
-    .AddDefaultTokenProviders();
+//builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+//    //.AddEntityFrameworkStores<ApplicationDbContext>()
+//    .AddEntityFrameworkStores<AppDbContext>()
+//    .AddSignInManager()
+//    .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+//builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 // Configure Entity Framework database context with SQLite
 // Database file is located in the MMPD.Data project folder
@@ -70,11 +68,11 @@ builder.Services.AddScoped<ExportData>(); // Data export functionality
 // Singleton lifetime ensures same instance across the application
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
-builder.Services.AddAuth0WebAppAuthentication(options =>
-{
-    options.Domain = builder.Configuration["Auth0:Domain"];
-    options.ClientId = builder.Configuration["Auth0:ClientId"];
-});
+//builder.Services.AddAuth0WebAppAuthentication(options =>
+//{
+//    options.Domain = builder.Configuration["Auth0:Domain"];
+//    options.ClientId = builder.Configuration["Auth0:ClientId"];
+//});
 
 builder.Services.AddHttpContextAccessor();
 
@@ -106,15 +104,15 @@ app.UseHttpsRedirection();    // Redirect HTTP requests to HTTPS
 app.UseStaticFiles();         // Serve static files (CSS, JS, images, etc.)
 app.UseAntiforgery();         // CSRF protection for forms
 app.MapStaticAssets();        // Map static assets for optimization
-app.UseAuthentication(); // Enable authentication
-app.UseAuthorization();  // Enable authorization
+//app.UseAuthentication(); // Enable authentication
+//app.UseAuthorization();  // Enable authorization
 
 // Configure Blazor component routing with server-side rendering
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 // Add additional endpoints required by the Identity /Account Razor components.
-app.MapAdditionalIdentityEndpoints();
+//app.MapAdditionalIdentityEndpoints();
 
 // Start the web application and begin listening for requests
 app.Run();
