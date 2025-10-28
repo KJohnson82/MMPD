@@ -108,7 +108,7 @@ else if (isChecking)
     }
 }
 
-// ===================================================================
+@* // ===================================================================
 // USAGE EXAMPLE
 // ===================================================================
 /*
@@ -116,13 +116,13 @@ else if (isChecking)
  * 
  * In any page you want to protect, wrap your content like this:
  * 
- * @* @page "/Home" *@
+ * @page "/Home"
  * 
- * @* <RequireAuth>
+ * <RequireAuth>
  *     <h1>Protected Content</h1>
  *     <p>Only logged-in users can see this!</p>
  *     <LogoutButton />
- * </RequireAuth> *@
+ * </RequireAuth>
  * 
  * 
  * WHAT HAPPENS:
@@ -168,4 +168,4 @@ else if (isChecking)
  * This provides UI-level protection only. For API endpoints,
  * you need separate server-side authorization. This component
  * prevents users from seeing pages, but doesn't secure API calls.
- */
+ */ *@
